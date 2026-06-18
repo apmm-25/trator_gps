@@ -1,0 +1,9 @@
+EESchema-DOCLIB  Version 2.0
+#
+$CMP TPS56339DDCR
+D 4.5-V to 24-V input, 3-A output synchronous buck converter
+K
+F http://www.ti.com/lit/gpn/TPS56339
+$ENDCMP
+#
+#End Doc Library

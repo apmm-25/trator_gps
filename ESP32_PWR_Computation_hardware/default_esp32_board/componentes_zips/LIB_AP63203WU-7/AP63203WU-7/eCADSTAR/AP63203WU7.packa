@@ -1,0 +1,13 @@
+(unit MM)
+
+(package "AP63203WU-7"
+    (type UNDEF)
+    (uver 2)
+    (cuser "SamacSys")
+    (uuser "SamacSys")
+    (utime 2024-03-29-10:48:17)
+    (mountForm default
+        (footprintRef "AP63203WU7")
+        (spec "System")
+    )
+)

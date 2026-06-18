@@ -1,0 +1,16 @@
+.TPS56339DDCR :1 ;4.5-V to 24-V input, 3-A output synchronous buck converter
+SOT95P280X110-6N
+*STM IC
+*NGS
+*PLB 1="GND" 2="SW" 3="VIN" 4="FB" 5="EN" 6="BOOT"
+*MXP 6
+*DFN TPS56339DDCR
+~!Mouser Part Number (595-TPS56339DDCR)
+~!Link Mouser Price/Stock (https://www.mouser.co.uk/ProductDetail/Texas-Instruments/TPS56339DDCR?qs=T3oQrply3y%2FnX4YgbxZYZA%3D%3D)
+~!Manufacturer_Name (Texas Instruments)
+~!Manufacturer_Part_Number (TPS56339DDCR)
+~!Link Datasheet (http://www.ti.com/lit/gpn/TPS56339)
+~!Height (1.1mm)
+~!3D_Model (TPS56339DDCR)
+TPS56339DDCR
+1.1!U 2.1!U 3.1!U 6.1!U 5.1!U 4.1!U 

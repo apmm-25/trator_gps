@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'TPS56339DDCR'
+CLASS = IC
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "Texas Instruments", "TPS56339DDCR" (!) = "", "SOT95P280X110-6N", "SOT23 (6-Pin)", "595-TPS56339DDCR", "https://www.mouser.co.uk/ProductDetail/Texas-Instruments/TPS56339DDCR?qs=T3oQrply3y%2FnX4YgbxZYZA%3D%3D", "4.5-V to 24-V input, 3-A output synchronous buck converter", "http://www.ti.com/lit/gpn/TPS56339", "1.1 mm"
+END_PART
+
+END.

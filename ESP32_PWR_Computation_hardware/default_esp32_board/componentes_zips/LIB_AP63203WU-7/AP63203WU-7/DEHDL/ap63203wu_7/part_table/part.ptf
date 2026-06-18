@@ -1,0 +1,11 @@
+FILE_TYPE = MULTI_PHYS_TABLE;
+
+PART 'AP63203WU_7'
+CLASS = IC
+{========================================================================================}
+:"MANUFACTURER_NAME", "MANUFACTURER_PART_NUMBER"= "PART_NUMBER", "JEDEC_TYPE", "PACK_TYPE", "MOUSER_PART_NUMBER", "MOUSER_PRICE/STOCK", "DESCRIPTION", "DATASHEET", "HEIGHT";
+{========================================================================================}
+ "Diodes Incorporated", "AP63203WU-7" (!) = "", "AP63203WU7", "Other", "621-AP63203WU-7", "https://www.mouser.co.uk/ProductDetail/Diodes-Incorporated/AP63203WU-7?qs=u16ybLDytRZ1JqxbuLkMJw%3D%3D", "Switching Voltage Regulators DCDC Conv HV Buck TSOT26 T&R 3K", "https://www.diodes.com/assets/Datasheets/AP63200-AP63201-AP63203-AP63205.pdf", "1 mm"
+END_PART
+
+END.

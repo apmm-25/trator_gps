@@ -1,0 +1,10 @@
+(unit MM)
+
+(package "AP63203WU7"
+    (type UNDEF)
+    (uver 2)
+    (mountForm default
+        (footprintRef "AP63203WU7")
+        (spec "default")
+    )
+)
