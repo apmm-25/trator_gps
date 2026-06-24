@@ -9,8 +9,7 @@
 
 
 */
-#include "libs.h"
-#include "dat.h"
+#include "common.h"
 
 #ifndef GPS_H
 #define GPS_H

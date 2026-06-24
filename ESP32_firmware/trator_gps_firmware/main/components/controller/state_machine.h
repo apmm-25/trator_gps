@@ -11,7 +11,7 @@
 #ifndef  STATE_MACHINE_H
 #define  STATE_MACHINE_H
 
-#include "libs.h"
+#include "common.h"
 
 void state_machine_loop();
 #endif /* STATE_MACHINE_H */
