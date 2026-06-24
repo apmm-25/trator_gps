@@ -1,6 +1,6 @@
 /* 
     Author: António Malato
-    This is a header file for common functions used across the project
+    This is a header file for common data types used across the project
 
     If a change is made add the day and the title of the change here:
 
@@ -10,7 +10,7 @@
 
 */
 
-#
+
 
 #ifndef COMMON_H
 #define COMMON_H
@@ -48,5 +48,19 @@ typedef struct {
    serial_comm_set_status_t set_status;
 } serial_comms_config_t;
 
+typedef enum {
+    IDLE = 0,
+    PLANT_MODE = 1,
+} state_machine_state_t;
+
+typedef enum {
+    WAIT_FOR_PLANT = 0,
+    NORMAL_OPERATION = 1,
+} plant_mode_substate_t;
+
+typedef struct {
+    bool first_sample;
+    uint16_t accumulated_distance;
+} gps_tracker_t;
 
 #endif /* COMMON_H */
