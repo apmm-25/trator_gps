@@ -21,4 +21,14 @@
 #include "types.h"
 #include "libs.h"
 
+
+SemaphoreHandle_t gps_data_mutex;
+SemaphoreHandle_t settings_data_mutex;
+EventGroupHandle_t system_events;
+
+#define EVENT_PLANT_MODE (1 << 0)
+#define EVENT_NEW_GPS_DATA (1 << 1)
+#define EVENT_NEW_SETTINGS_DATA (1 << 2)
+
+
 #endif /* COMMON_H */
