@@ -14,6 +14,7 @@
 #define LOCALIZATION_TASK_H
 
 #include "gps.h"
+#include "common.h"
 
 void localization_task_start(void);
 void localization_task(void* pvParameters);

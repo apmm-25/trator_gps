@@ -11,6 +11,10 @@
 
 */
 #include "common.h"
+#include "button_task.h"
+#include "localization_task.h"
+#include "web_page_management_task.h"
+#include "state_machine_task.h"
 
 
 static const char *TAG = "APP_MAIN";
@@ -23,6 +27,7 @@ void app_main(void)
     button_task_start();
     localization_task_start();
     webpage_task_start();
+    state_machine_task_start();
     ESP_LOGI(TAG, "Tasks created");
 
 

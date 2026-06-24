@@ -12,18 +12,13 @@
 */
 
 
-#include "driver/uart.h"
-#include "esp_log.h"
-#include "driver/gpio.h"
-#include "sdkconfig.h"
-#include "common.h"
-
 
 
 
 #ifndef SERIAL_COMMS_H
 #define SERIAL_COMMS_H
 
+#include "common.h"
 
 void serial_comms_init();
 

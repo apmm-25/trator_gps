@@ -11,13 +11,11 @@
 
 */
 
-#include "driver/uart.h"
-#include "driver/gpio.h"
-#include "sdkconfig.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/task.h"
-#include "esp_log.h"
-#include <stdio.h>
+#ifndef DAT_H
+#define DAT_H
+
+
+#include "libs.h"
 
 typedef struct {
    serial_comms_type_t comms_type; 
@@ -27,9 +25,15 @@ typedef struct {
    serial_comm_set_status_t set_status;
 } serial_comms_config_t;
 
-
-
 typedef struct {
     bool first_sample;
     uint16_t accumulated_distance;
 } gps_tracker_t;
+
+typedef struct {
+    float latitude;
+    float longitude;
+    float altitude;
+} GPSData;
+
+#endif /* DAT_H */

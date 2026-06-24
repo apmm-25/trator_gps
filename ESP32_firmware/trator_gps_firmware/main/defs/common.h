@@ -19,9 +19,6 @@
 
 #include "dat.h"
 #include "types.h"
-#include "button_task.h"
-#include "localization_task.h"
-#include "web_page_management_task.h"
-
+#include "libs.h"
 
 #endif /* COMMON_H */

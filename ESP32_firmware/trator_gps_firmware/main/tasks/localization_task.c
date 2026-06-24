@@ -11,7 +11,7 @@
 */
 
 #include "common.h"
-#include "localization_logic_task.h"    
+#include "localization_task.h"    
 
 static const char *TAG = "LOCALIZATION_TASK";
 

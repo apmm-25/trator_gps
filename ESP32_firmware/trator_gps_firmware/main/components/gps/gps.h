@@ -9,16 +9,13 @@
 
 
 */
-#include "serial_comms.h"
+#include "libs.h"
+#include "dat.h"
 
 #ifndef GPS_H
 #define GPS_H
 
 /*      STRUCTS     */
-typedef struct {
-    float latitude;
-    float longitude;
-    float altitude;
-} GPSData;
+
 #endif /* GPS_H */
 

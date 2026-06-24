@@ -10,6 +10,9 @@
 
 */
 
+#ifndef TYPES_H
+#define TYPES_H
+
 typedef enum {
     SERIAL_COMMS_OK = 0,
     SERIAL_COMMS_ERROR = -1,
@@ -38,3 +41,5 @@ typedef enum {
     WAIT_FOR_PLANT = 0,
     NORMAL_OPERATION = 1,
 } plant_mode_substate_t;
+
+#endif /* TYPES_H */

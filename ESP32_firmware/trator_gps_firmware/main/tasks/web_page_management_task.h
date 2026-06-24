@@ -14,6 +14,7 @@
 #define WEBPAGE_TASK_H
 
 #include "web_app.h"
+#include "common.h"
 
 void webpage_task_start(void);
 void webpage_task(void* pvParameters);

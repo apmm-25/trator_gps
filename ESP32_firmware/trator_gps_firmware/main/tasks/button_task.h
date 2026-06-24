@@ -14,6 +14,7 @@
 #define BUTTON_LOGIC_TASK_H
 
 #include "state_machine.h"
+#include "common.h"
 
 void button_task_start(void);
 void button_task(void* pvParameters);

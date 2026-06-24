@@ -11,6 +11,7 @@
 */
 
 #include "common.h"
+#include "web_page_management_task.h"
 
 static const char *TAG = "WEBPAGE_TASK";
 
