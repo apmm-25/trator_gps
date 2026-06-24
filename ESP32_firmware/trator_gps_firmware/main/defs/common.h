@@ -1,11 +1,12 @@
 /* 
     Author: António Malato
     This is a header file for common data types used across the project
+    Events, semaphores, mutexes, queues and other common data types are defined here
 
     If a change is made add the day and the title of the change here:
 
     18/6/2026 - Initial creation of the file
-    
+    24/6/2026 - Sub divided the common data types into separated files
 
 
 */
@@ -15,52 +16,12 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include "driver/uart.h"
-#include "driver/gpio.h"
-#include "sdkconfig.h"
-#include "esp_log.h"
 
+#include "dat.h"
+#include "types.h"
+#include "button_task.h"
+#include "localization_task.h"
+#include "web_page_management_task.h"
 
-typedef enum {
-    SERIAL_COMMS_OK = 0,
-    SERIAL_COMMS_ERROR = -1,
-    SERIAL_COMMS_TIMEOUT = -2,
-    SERIAL_COMMS_INVALID_PARAM = -3
-} serial_comms_status_t;
-
-typedef enum {
-    SERIAL_NOT_SET = 0,
-    SERIAL_SET = 1
-} serial_comm_set_status_t;
-
-typedef enum {
-    SERIAL_UART0 = 0,
-    SERIAL_UART2 = 1,
-    SERIAL_I2C = 2,
-    SERIAL_SPI = 3
-} serial_comms_type_t;
-
-typedef struct {
-   serial_comms_type_t comms_type; 
-   uint32_t baudrate;
-   uint8_t parity;
-   uint8_t stop_bits;
-   serial_comm_set_status_t set_status;
-} serial_comms_config_t;
-
-typedef enum {
-    IDLE = 0,
-    PLANT_MODE = 1,
-} state_machine_state_t;
-
-typedef enum {
-    WAIT_FOR_PLANT = 0,
-    NORMAL_OPERATION = 1,
-} plant_mode_substate_t;
-
-typedef struct {
-    bool first_sample;
-    uint16_t accumulated_distance;
-} gps_tracker_t;
 
 #endif /* COMMON_H */

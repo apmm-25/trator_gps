@@ -1,9 +1,3 @@
-#include "driver/uart.h"
-#include "esp_log.h"
-#include "driver/gpio.h"
-#include "sdkconfig.h"
-#include "common.h"
-
 /* 
     Author: António Malato
     This is a header file for serial communication functions across all projects I will ever work on 
@@ -16,6 +10,15 @@
 
 
 */
+
+
+#include "driver/uart.h"
+#include "esp_log.h"
+#include "driver/gpio.h"
+#include "sdkconfig.h"
+#include "common.h"
+
+
 
 
 #ifndef SERIAL_COMMS_H
