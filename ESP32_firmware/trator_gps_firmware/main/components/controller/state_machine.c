@@ -19,11 +19,27 @@ void set_led_planting_mode(bool on){
     gpio_set_level(RED_LED_PIN, !on);
 }
 
-void state_machine_loop(){
+state_machine_state_t state_machine_loop(state_machine_state_t next_state, sys_data_t sys_data){
     // Implement the state machine logic here
     // For example, check the current state and perform actions based on the state
     // Transition to other states based on events or conditions
+    plant_mode_substate_t substate = NORMAL_OPERATION;
 
+    switch (next_state)
+    {
+    case PLANT_MODE:
+        /* code */
+        break;
+    
+    case IDLE:
+        /* code */
+    
+    default:
+        break;
+
+    }
+
+    return next_state;
     
 }
 

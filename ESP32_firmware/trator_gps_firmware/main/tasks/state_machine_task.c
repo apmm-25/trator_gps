@@ -30,6 +30,8 @@ void state_machine_task_start(void){
 
 void state_machine_task(void* pvParameters){
     ESP_LOGI(TAG, "State machine task started");
+    state_machine_state_t next_state;
+    state_machine_state_t curr_state = IDLE;
 
     while(1){
         // Here the functions of the state machine will be used to always be managing the states of the tractor
@@ -37,14 +39,13 @@ void state_machine_task(void* pvParameters){
         
         ESP_LOGI(TAG, "State machine task running");
         if (xSemaphoreTake(settings_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
-            
+            system_data.delta_pos = received_settings_data.delta_pos;
             xSemaphoreGive(settings_data_mutex);
         } else {
             ESP_LOGW(TAG, "Failed to take settings_data_mutex");
         }
 
-
-        state_machine_loop(); // Call the state machine loop function to manage the states of the tractor
+        next_state = state_machine_loop(curr_state, system_data); // Call the state machine loop function to manage the states of the tractor
         vTaskDelay(pdMS_TO_TICKS(50)); // Delay for 50 ms to avoid busy waiting
 
     }

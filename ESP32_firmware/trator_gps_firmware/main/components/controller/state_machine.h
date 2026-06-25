@@ -13,6 +13,6 @@
 
 #include "common.h"
 
-void state_machine_loop();
+state_machine_state_t state_machine_loop(state_machine_state_t next_state, sys_data_t sys_data);
 void set_led_planting_mode(bool on);
 #endif /* STATE_MACHINE_H */

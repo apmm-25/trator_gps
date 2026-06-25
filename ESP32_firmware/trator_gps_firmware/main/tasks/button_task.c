@@ -32,7 +32,6 @@ void button_task(void* pvParameters){
         // Check button state and trigger actions based on the button press
         // For example, if the button is pressed, change the state of the state machine or trigger an event
         ESP_LOGI(TAG, "Button task running");
-        state_machine_loop();
         vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100 ms to avoid busy waiting
 
 
