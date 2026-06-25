@@ -22,13 +22,30 @@
 #include "libs.h"
 
 
-SemaphoreHandle_t gps_data_mutex;
-SemaphoreHandle_t settings_data_mutex;
-EventGroupHandle_t system_events;
+// LED INITIALIZATION
+
+#define GREEN_LED_PIN GPIO_NUM_18
+#define RED_LED_PIN GPIO_NUM_21
+#define YELLOW_LED_PIN GPIO_NUM_19
+#define BUTTON_IN GPIO_NUM_35
+
+#define DEFAULT_DELTA_POS 2 // Default delta position
+#define DEFAULT_PLANT_TIME 2 // Default plant time in seconds
 
 #define EVENT_PLANT_MODE (1 << 0)
 #define EVENT_NEW_GPS_DATA (1 << 1)
 #define EVENT_NEW_SETTINGS_DATA (1 << 2)
+
+
+extern SemaphoreHandle_t gps_data_mutex;
+extern GPSData gps_data;
+extern SemaphoreHandle_t settings_data_mutex;
+extern web_cmds_t received_settings_data;
+extern web_data_t web_data_to_send;
+extern EventGroupHandle_t system_events;
+extern sys_data_t system_data;
+
+
 
 
 #endif /* COMMON_H */

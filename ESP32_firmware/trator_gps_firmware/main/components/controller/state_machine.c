@@ -13,6 +13,12 @@
 
 #include "common.h"
 
+void set_led_planting_mode(bool on){
+
+    gpio_set_level(GREEN_LED_PIN, on);
+    gpio_set_level(RED_LED_PIN, !on);
+}
+
 void state_machine_loop(){
     // Implement the state machine logic here
     // For example, check the current state and perform actions based on the state

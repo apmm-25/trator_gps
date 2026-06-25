@@ -36,4 +36,22 @@ typedef struct {
     float altitude;
 } GPSData;
 
+typedef struct {
+    bool reset;
+    uint8_t delta_pos;
+    uint8_t plant_time;
+
+} web_cmds_t; // Structure that holds incomming commands and changes to constants incoming from the web app
+
+typedef struct {
+    uint8_t delta_pos;
+    uint8_t plant_time;
+
+} sys_data_t; // Structure that holds system data to be used across the project
+
+typedef struct {
+    bool plant_mode_active;
+    GPSData gps_data;
+} web_data_t; // Structure that holds data to be sent to the web interface to show the user
+
 #endif /* DAT_H */

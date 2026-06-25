@@ -14,4 +14,5 @@
 #include "common.h"
 
 void state_machine_loop();
+void set_led_planting_mode(bool on);
 #endif /* STATE_MACHINE_H */

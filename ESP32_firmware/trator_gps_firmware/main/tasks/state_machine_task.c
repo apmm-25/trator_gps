@@ -19,7 +19,13 @@ void state_machine_task_start(void){
 
     TaskHandle_t state_machine_task_handle;
     xTaskCreate(state_machine_task, "State Machine Task", 4096, NULL, 5, &state_machine_task_handle);
-    ESP_LOGI(TAG, "State machine task created");
+    if(state_machine_task_handle == NULL){
+        ESP_LOGE(TAG, "Failed to create state machine task");
+        return;
+    } else {
+
+        ESP_LOGI(TAG, "State machine task created");
+    }
 }
 
 void state_machine_task(void* pvParameters){
@@ -28,9 +34,18 @@ void state_machine_task(void* pvParameters){
     while(1){
         // Here the functions of the state machine will be used to always be managing the states of the tractor
         // For example, read the state machine data and update the state of the tractor in a global variable or a queue
+        
         ESP_LOGI(TAG, "State machine task running");
+        if (xSemaphoreTake(settings_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            
+            xSemaphoreGive(settings_data_mutex);
+        } else {
+            ESP_LOGW(TAG, "Failed to take settings_data_mutex");
+        }
 
-        vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100 ms to avoid busy waiting
+
+        state_machine_loop(); // Call the state machine loop function to manage the states of the tractor
+        vTaskDelay(pdMS_TO_TICKS(50)); // Delay for 50 ms to avoid busy waiting
 
     }
 }
