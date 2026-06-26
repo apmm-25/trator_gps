@@ -37,6 +37,15 @@ typedef struct {
 } GPSData;
 
 typedef struct {
+    float latitude;
+    float longitude;
+    float altitude;
+    uint64_t timestamp;
+    uint16_t satellite_number;
+    uint8_t checksum;
+} zedf9p_incoming_data_t;
+
+typedef struct {
     bool reset;
     uint8_t delta_pos;
     uint8_t plant_time;

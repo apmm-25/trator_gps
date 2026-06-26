@@ -29,6 +29,10 @@
 #define YELLOW_LED_PIN GPIO_NUM_19
 #define BUTTON_IN GPIO_NUM_35
 
+#define GPS_UART UART_NUM_2
+#define GPS_UART_TX GPIO_NUM_17
+#define GPS_UART_RX GPIO_NUM_16
+
 #define DEFAULT_DELTA_POS 2 // Default delta position
 #define DEFAULT_PLANT_TIME 2000 // Default plant time in miliseconds
 

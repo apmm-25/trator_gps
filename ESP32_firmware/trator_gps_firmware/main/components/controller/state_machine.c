@@ -34,7 +34,7 @@ void state_machine_loop(state_machine_data_t* next_states, sys_data_t sys_data, 
     case PLANT_MODE:
         set_led_planting_mode(true);
         next_states->next_sub_state = IDLE_SUBSTATE;
-        /*
+        
         switch (next_states->next_sub_state)
         {
         case WAIT_FOR_PLANT:
@@ -59,7 +59,7 @@ void state_machine_loop(state_machine_data_t* next_states, sys_data_t sys_data, 
 
             next_states->next_sub_state = NORMAL_OPERATION;
             break;
-        } */
+        } 
         
         break;
     

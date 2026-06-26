@@ -14,7 +14,16 @@
 #ifndef GPS_H
 #define GPS_H
 
-/*      STRUCTS     */
+
+void parser_nmea_msg();
+
+GPSData get_gps_data();
+
+uint16_t linear_distance_calculation();
+
+uint16_t calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos);
+
+
 
 #endif /* GPS_H */
 
