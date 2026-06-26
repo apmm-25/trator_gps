@@ -45,7 +45,7 @@ typedef struct {
 
 typedef struct {
     uint8_t delta_pos;
-    uint8_t plant_time;
+    uint16_t plant_time;
 
 } sys_data_t; // Structure that holds system data to be used across the project
 
@@ -58,4 +58,11 @@ typedef struct {
     state_machine_state_t next_state;
     plant_mode_substate_t next_sub_state;
 } state_machine_data_t;
+
+typedef struct
+{
+    button_states_t current_state;
+    int64_t last_pressed_timestamp;
+} button_t; // Tracks the button and the system state
+
 #endif /* DAT_H */

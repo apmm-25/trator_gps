@@ -50,7 +50,7 @@ void GPIO_init(void){
 
     // button input setup
     io_config.mode = GPIO_MODE_INPUT;
-    io_config.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_config.pull_up_en = GPIO_PULLUP_ENABLE;
     io_config.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_config.pin_bit_mask = (1ULL << BUTTON_IN);
     gpio_config(&io_config);
@@ -95,6 +95,7 @@ void event_group_init(void){
     }
 
 }
+
 
 
 void app_main(void)

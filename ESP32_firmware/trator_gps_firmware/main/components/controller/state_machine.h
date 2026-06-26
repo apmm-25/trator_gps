@@ -13,6 +13,9 @@
 
 #include "common.h"
 
-plant_mode_substate_t state_machine_loop(state_machine_data_t next_states, sys_data_t sys_data, gps_tracker_t* gps_tracker);
+void state_machine_loop(state_machine_data_t* next_states, 
+    sys_data_t sys_data, 
+    gps_tracker_t* gps_tracker
+    );
 void set_led_planting_mode(bool on);
 #endif /* STATE_MACHINE_H */

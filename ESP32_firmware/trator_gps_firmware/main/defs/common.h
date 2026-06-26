@@ -30,12 +30,12 @@
 #define BUTTON_IN GPIO_NUM_35
 
 #define DEFAULT_DELTA_POS 2 // Default delta position
-#define DEFAULT_PLANT_TIME 2 // Default plant time in seconds
+#define DEFAULT_PLANT_TIME 2000 // Default plant time in miliseconds
 
 #define EVENT_PLANT_MODE (1 << 0)
 #define EVENT_NEW_GPS_DATA (1 << 1)
 #define EVENT_NEW_SETTINGS_DATA (1 << 2)
-
+#define BUTTON_PRESS_TIME 2000 // 2 miliseconds click
 
 extern SemaphoreHandle_t gps_data_mutex;
 extern GPSData gps_data;
@@ -44,6 +44,7 @@ extern web_cmds_t received_settings_data;
 extern web_data_t web_data_to_send;
 extern EventGroupHandle_t system_events;
 extern sys_data_t system_data;
+extern button_t button_state;
 
 
 

@@ -43,4 +43,8 @@ typedef enum {
     NORMAL_OPERATION = 1,
 } plant_mode_substate_t;
 
+typedef enum {
+    PRESSED = 0,
+    UNPRESSED = 1,
+} button_states_t;
 #endif /* TYPES_H */

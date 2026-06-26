@@ -15,6 +15,8 @@
 
 static const char *TAG = "BUTTON_TASK";
 
+
+
 void button_task_start(void){
 
     TaskHandle_t button_task_handle;
@@ -27,12 +29,39 @@ void button_task_start(void){
 void button_task(void* pvParameters){
     
     ESP_LOGI(TAG, "Button task started");
+    bool plant_mode_state = false; // THIS WILL KEEP UP WITH THE CHANGING STATES
+    button_t button_state;
+    button_state.current_state = UNPRESSED;
     while(1){
-        
+
         // Check button state and trigger actions based on the button press
         // For example, if the button is pressed, change the state of the state machine or trigger an event
         ESP_LOGI(TAG, "Button task running");
         vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100 ms to avoid busy waiting
+        if(!gpio_get_level(BUTTON_IN)){
+
+            if(button_state.current_state == UNPRESSED){
+                button_state.last_pressed_timestamp = esp_timer_get_time();
+                button_state.current_state = PRESSED;
+            } else if (button_state.current_state == PRESSED)
+            {
+                int64_t held_time = (esp_timer_get_time() - button_state.last_pressed_timestamp)/1000;
+                
+                if(held_time >= BUTTON_PRESS_TIME){
+                    plant_mode_state = !plant_mode_state;
+                    button_state.current_state = UNPRESSED;
+                }
+            }
+            
+        } else {
+            button_state.current_state = UNPRESSED;
+        }
+        
+        if(plant_mode_state){
+            xEventGroupSetBits(system_events, EVENT_PLANT_MODE);
+        } else {
+            xEventGroupClearBits(system_events, EVENT_PLANT_MODE);
+        }
 
 
     }
