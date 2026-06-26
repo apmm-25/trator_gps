@@ -32,6 +32,12 @@ void state_machine_task(void* pvParameters){
     ESP_LOGI(TAG, "State machine task started");
     state_machine_state_t next_state;
     state_machine_state_t curr_state = IDLE;
+    GPSData curr_pos_gps_data;
+    GPSData last_position_gps_data;
+    curr_pos_gps_data.altitude = 0;
+    curr_pos_gps_data.latitude = 0;
+    curr_pos_gps_data.altitude = 0;
+    gps_tracker_t gps_tracker;
 
     while(1){
         // Here the functions of the state machine will be used to always be managing the states of the tractor
@@ -45,7 +51,15 @@ void state_machine_task(void* pvParameters){
             ESP_LOGW(TAG, "Failed to take settings_data_mutex");
         }
 
-        next_state = state_machine_loop(curr_state, system_data); // Call the state machine loop function to manage the states of the tractor
+        if(xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE){
+            ESP_LOGI(TAG, "Test getting mutex on the gps_data");
+            curr_pos_gps_data.altitude = gps_data.altitude;
+            curr_pos_gps_data.latitude = gps_data.latitude;
+            curr_pos_gps_data.longitude = gps_data.longitude;
+        }
+
+
+        // call next state
         vTaskDelay(pdMS_TO_TICKS(50)); // Delay for 50 ms to avoid busy waiting
 
     }

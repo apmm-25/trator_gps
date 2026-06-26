@@ -38,6 +38,7 @@ typedef enum {
 } state_machine_state_t;
 
 typedef enum {
+    IDLE_SUBSTATE = -1, // When the overall state is in IDLE
     WAIT_FOR_PLANT = 0,
     NORMAL_OPERATION = 1,
 } plant_mode_substate_t;

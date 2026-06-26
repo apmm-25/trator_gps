@@ -54,4 +54,8 @@ typedef struct {
     GPSData gps_data;
 } web_data_t; // Structure that holds data to be sent to the web interface to show the user
 
+typedef struct {
+    state_machine_state_t next_state;
+    plant_mode_substate_t next_sub_state;
+} state_machine_data_t;
 #endif /* DAT_H */
