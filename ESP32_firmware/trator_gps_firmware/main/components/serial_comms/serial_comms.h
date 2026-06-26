@@ -24,6 +24,6 @@ void serial_comms_init();
 
 serial_comms_status_t serial_comms_send_data(const char* data, size_t length, serial_comms_type_t comms_type);
 
-serial_comms_status_t serial_comms_receive_data(char* buffer, size_t buffer_length, size_t* received_length, serial_comms_type_t comms_type, uint32_t timeout_ms);
+serial_comms_status_t serial_comms_receive_gps_data(uint8_t* buffer);
 
 #endif /* SERIAL_COMMS_H */

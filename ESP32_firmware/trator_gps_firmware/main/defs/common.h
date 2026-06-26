@@ -20,6 +20,7 @@
 #include "dat.h"
 #include "types.h"
 #include "libs.h"
+#include "serial_comms.h"
 
 
 // LED INITIALIZATION

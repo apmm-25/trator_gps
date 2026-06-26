@@ -15,7 +15,7 @@
 #define GPS_H
 
 
-void parser_nmea_msg();
+zedf9p_incoming_data_t parser_nmea_msg();
 
 GPSData get_gps_data();
 
