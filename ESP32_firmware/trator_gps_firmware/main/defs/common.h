@@ -42,6 +42,23 @@
 #define EVENT_NEW_SETTINGS_DATA (1 << 2)
 #define BUTTON_PRESS_TIME 2000 // 2 miliseconds click
 
+
+// GPS constants
+
+#define GPS_LINE_TERMINATOR '\n'
+#define GPS_DATA_FIELD_TERMINATOR ','
+#define GPS_CHECKSUM_FIELD_INDICATOR '*'
+#define GPS_DATA_INITIAL_CHAR '$'
+#define PUBX_MSG_TYPE_ID "PUBX"
+#define GNS_MSG_TYPE_ID "GNS"
+#define GPS_DATA_FIELD_NORTH_INDICATOR 'N'
+#define GPS_DATA_FIELD_SOUTH_INDICATOR 'S'
+#define GPS_DATA_FIELD_EAST_INDICATOR 'E'
+#define GPS_DATA_FIELD_WEST_INDICATOR 'W'
+#define GPS_DATA_FIELD_MAX_STR_LEN 25
+
+
+// Extern variables
 extern SemaphoreHandle_t gps_data_mutex;
 extern GPSData gps_data;
 extern SemaphoreHandle_t settings_data_mutex;

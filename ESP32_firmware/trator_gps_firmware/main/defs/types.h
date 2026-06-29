@@ -47,4 +47,27 @@ typedef enum {
     PRESSED = 0,
     UNPRESSED = 1,
 } button_states_t;
+
+typedef enum {
+    UNDEFINED = -1,
+    GNS = 0,
+    PUBX = 1,
+} gps_msg_t;
+
+typedef enum{
+    GNS_ID = 0,
+    TIME = 1,
+    LAT = 2,
+    NS = 3,
+    LON = 4,
+    EW = 5,
+    POSMODE = 6,
+    NUMSV = 7,
+    HDOP = 8, 
+    ALT = 9,
+    SEP = 10,
+    DIFFAGE = 11,
+    DIFFSTATION = 12,
+    NAVSTATUS = 13,
+} gns_data_fields_t;
 #endif /* TYPES_H */

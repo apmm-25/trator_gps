@@ -36,7 +36,6 @@ void serial_comms_init()
     NULL,
     0);
 
-
 }
 
 serial_comms_status_t serial_comms_send_data(const char* data, size_t length, serial_comms_type_t comms_type);

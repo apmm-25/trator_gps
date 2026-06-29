@@ -34,16 +34,25 @@ typedef struct {
     float latitude;
     float longitude;
     float altitude;
-} GPSData;
+} GPSData; // possivelmente inutil
 
 typedef struct {
     float latitude;
     float longitude;
     float altitude;
+    char EW;
+    char NS;
     uint64_t timestamp;
     uint16_t satellite_number;
     uint8_t checksum;
 } zedf9p_incoming_data_t;
+
+typedef struct {
+    char rx_buffer[256];
+    uint16_t index; //iterate through this to set the value while reading
+    uint16_t parser_index; //iterate through this during parsing
+    uint16_t line_len;
+} nmea_raw_data_struct;
 
 typedef struct {
     bool reset;
