@@ -139,103 +139,227 @@ bool nmea_checksum_comparison(const nmea_raw_data_struct *data)
     }
 }
 
-float nmea_float_parser(nmea_raw_data_struct *data)
+float nmea_float_parser(char *field_data)
 {
     int inside_field_byte_index = 0;
-    char sub_buffer[GPS_DATA_FIELD_MAX_STR_LEN];
     float ret;
-    
-    // When it enters it is in the initial ',' he catches
-    data->parser_index++;
-    while ((data->rx_buffer[data->parser_index]) != GPS_DATA_FIELD_TERMINATOR)
-    {
-        sub_buffer[inside_field_byte_index] = data->rx_buffer[data->parser_index];
-        data->parser_index++;
-        inside_field_byte_index++;
-    }
-    sub_buffer[inside_field_byte_index] = '\0';
-
-    ret = char_to_number_extraction(sub_buffer, strlen(sub_buffer));
-    data->parser_index--;
+    ret = char_to_number_extraction(field_data, strlen(field_data));
     return ret;
 }
 
-uint8_t nmea_int_parser(nmea_raw_data_struct *data)
+uint8_t nmea_int_parser(char *field_data)
 {
     int inside_field_byte_index = 0;
-    char sub_buffer[GPS_DATA_FIELD_MAX_STR_LEN];
-    float ret;
-    data->parser_index++;
-    while ((data->rx_buffer[data->parser_index]) != GPS_DATA_FIELD_TERMINATOR)
-    {
-        sub_buffer[inside_field_byte_index] = data->rx_buffer[data->parser_index];
-        data->parser_index++;
-        inside_field_byte_index++;
-    }
-    sub_buffer[inside_field_byte_index] = '\0';
-    ret = string_to_int(sub_buffer);
+    uint8_t ret;
+    ret = string_to_int(field_data);
     return ret;
 }
 
-zedf9p_incoming_data_t GNS_parser(nmea_raw_data_struct *data)
+
+zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t gps_msg_type)
 {
+
     int msg_field_index = 0;
-    zedf9p_incoming_data_t ret;
+    zedf9p_incoming_data_t ret = {0};
     data->parser_index = 0;
+    int sub_buffer_index = 0;
+    char sub_buffer[GPS_DATA_FIELD_MAX_STR_LEN];
+    int cpy_index = 0; // copy of the latest index as reference for the sub_buffer creation
 
     ESP_LOGI("GNS_parser", "phrase to be parsed: %s", (data->rx_buffer));
 
-    while ((data->rx_buffer[data->parser_index]) != '\0')
+    while ((data->rx_buffer[data->parser_index]) != '\0' && (data->rx_buffer[data->parser_index]) != GPS_CHECKSUM_FIELD_INDICATOR)
     {
+
+        ESP_LOGI("GNS_parser", "char to parse: %c", (data->rx_buffer[data->parser_index]));
         if ((data->rx_buffer[data->parser_index]) == GPS_DATA_INITIAL_CHAR)
         {
             //$ começa os dados
             msg_field_index = 0;
-
+            while ((data->rx_buffer[data->parser_index]) != GPS_DATA_FIELD_TERMINATOR)
+            {
+                data->parser_index++;
+            }
         }
         else if ((data->rx_buffer[data->parser_index]) == GPS_DATA_FIELD_TERMINATOR)
         {
-            
+
             msg_field_index++;
             // virgula comeca o field
-            if ((data->rx_buffer[(data->parser_index) + 1]) == GPS_DATA_FIELD_TERMINATOR)
+            data->parser_index++; // increment the index to point to the first char of the field
+            sub_buffer_index = 0;
+            cpy_index = data->parser_index;
+            while ((data->rx_buffer[cpy_index]) != GPS_DATA_FIELD_TERMINATOR && (data->rx_buffer[cpy_index]) != GPS_CHECKSUM_FIELD_INDICATOR)
             {
-                // the field is empty
-                msg_field_index++;
+                // copy the field to a sub buffer to be parsed
+                sub_buffer[sub_buffer_index] = data->rx_buffer[cpy_index];
+                sub_buffer_index++;
+                cpy_index++;
             }
-            else
+            sub_buffer[sub_buffer_index] = '\0';
+            data->parser_index = cpy_index;
+            if (sub_buffer_index == 0)
             {
-                
+
+                ESP_LOGW("GNS_parser", "Empty field detected at index: %d", msg_field_index);
+                continue; // Skip processing for empty fields
+            }
+            else if (sub_buffer_index > 0 && gps_msg_type == GNS)
+            {
                 switch (msg_field_index)
                 {
 
                 case TIME:
-                    double timestamp_ = (double)nmea_float_parser(data);
+                    double timestamp_ = (double)nmea_float_parser(sub_buffer);
                     ret.timestamp = timestamp_;
                     break;
 
                 case LAT:
-                    ret.latitude = (double)nmea_float_parser(data);
+                    ret.latitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
                 case NS:
-                    ret.NS = data->rx_buffer[data->parser_index];
+                    ret.NS = sub_buffer[0];
                     break;
 
                 case LON:
-                    ret.longitude = (double)nmea_float_parser(data);
+                    ret.longitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
                 case EW:
-                    ret.EW = data->rx_buffer[data->parser_index];
+                    ret.EW = sub_buffer[0];
                     break;
 
                 case NUMSV:
-                    ret.satellite_number = nmea_int_parser(data);
+                    ret.satellite_number = nmea_int_parser(sub_buffer);
                     break;
 
                 case ALT:
-                    ret.altitude = (double)nmea_float_parser(data);
+                    ret.altitude = (double)nmea_float_parser(sub_buffer);
+                    break;
+
+                default:
+
+                    break;
+                }
+            } else if (sub_buffer_index > 0 && gps_msg_type == PUBX)
+            {
+                // Implement PUBX parsing logic here
+                switch (msg_field_index)
+                {
+                    // Add PUBX-specific field parsing cases here
+                    case TIME:
+                        double timestamp_ = (double)nmea_float_parser(sub_buffer);
+                        ret.timestamp = timestamp_;
+                        break;
+                    case LAT:
+                        ret.latitude = (double)nmea_float_parser(sub_buffer);
+                        break;
+                    case NS:
+                        ret.NS = sub_buffer[0];
+                        break;
+                    case LON:
+                        ret.longitude = (double)nmea_float_parser(sub_buffer);
+                        break;
+                    case EW:
+                        ret.EW = sub_buffer[0];
+                        break;
+                    case NUMSV:
+                        ret.satellite_number = nmea_int_parser(sub_buffer);
+                        break;
+                    case ALTREF:
+                        ret.altitude = (double)nmea_float_parser(sub_buffer);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+}
+
+
+
+
+zedf9p_incoming_data_t GNS_parser(nmea_raw_data_struct *data)
+{
+    int msg_field_index = 0;
+    zedf9p_incoming_data_t ret = {0};
+    data->parser_index = 0;
+    int sub_buffer_index = 0;
+    char sub_buffer[GPS_DATA_FIELD_MAX_STR_LEN];
+    int cpy_index = 0; // copy of the latest index as reference for the sub_buffer creation
+
+    ESP_LOGI("GNS_parser", "phrase to be parsed: %s", (data->rx_buffer));
+
+    while ((data->rx_buffer[data->parser_index]) != '\0' && (data->rx_buffer[data->parser_index]) != GPS_CHECKSUM_FIELD_INDICATOR)
+    {
+
+        ESP_LOGI("GNS_parser", "char to parse: %c", (data->rx_buffer[data->parser_index]));
+        if ((data->rx_buffer[data->parser_index]) == GPS_DATA_INITIAL_CHAR)
+        {
+            //$ começa os dados
+            msg_field_index = 0;
+            while ((data->rx_buffer[data->parser_index]) != GPS_DATA_FIELD_TERMINATOR)
+            {
+                data->parser_index++;
+            }
+        }
+        else if ((data->rx_buffer[data->parser_index]) == GPS_DATA_FIELD_TERMINATOR)
+        {
+
+            msg_field_index++;
+            // virgula comeca o field
+            data->parser_index++; // increment the index to point to the first char of the field
+            sub_buffer_index = 0;
+            cpy_index = data->parser_index;
+            while ((data->rx_buffer[cpy_index]) != GPS_DATA_FIELD_TERMINATOR && (data->rx_buffer[cpy_index]) != GPS_CHECKSUM_FIELD_INDICATOR)
+            {
+                // copy the field to a sub buffer to be parsed
+                sub_buffer[sub_buffer_index] = data->rx_buffer[cpy_index];
+                sub_buffer_index++;
+                cpy_index++;
+            }
+            sub_buffer[sub_buffer_index] = '\0';
+            data->parser_index = cpy_index;
+            if (sub_buffer_index == 0)
+            {
+
+                ESP_LOGW("GNS_parser", "Empty field detected at index: %d", msg_field_index);
+                continue; // Skip processing for empty fields
+            }
+            else if (sub_buffer_index > 0)
+            {
+                switch (msg_field_index)
+                {
+
+                case TIME:
+                    double timestamp_ = (double)nmea_float_parser(sub_buffer);
+                    ret.timestamp = timestamp_;
+                    break;
+
+                case LAT:
+                    ret.latitude = (double)nmea_float_parser(sub_buffer);
+                    break;
+
+                case NS:
+                    ret.NS = sub_buffer[0];
+                    break;
+
+                case LON:
+                    ret.longitude = (double)nmea_float_parser(sub_buffer);
+                    break;
+
+                case EW:
+                    ret.EW = sub_buffer[0];
+                    break;
+
+                case NUMSV:
+                    ret.satellite_number = nmea_int_parser(sub_buffer);
+                    break;
+
+                case ALT:
+                    ret.altitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
                 default:
@@ -244,7 +368,6 @@ zedf9p_incoming_data_t GNS_parser(nmea_raw_data_struct *data)
                 }
             }
         }
-        data->parser_index++;
     }
 
     return ret;
@@ -262,7 +385,7 @@ gps_msg_t check_gps_type(char *data_buffer)
         }
         else if (strstr(data_buffer, GNS_MSG_TYPE_ID))
         {
-           
+
             ret = GNS;
         }
         else
@@ -278,3 +401,12 @@ gps_msg_t check_gps_type(char *data_buffer)
         return ret;
     }
 }
+
+
+
+zedf9p_incoming_data_t PUBX_parser(nmea_raw_data_struct *data)
+{
+
+    return ret;
+}
+

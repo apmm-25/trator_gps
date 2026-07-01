@@ -70,4 +70,30 @@ typedef enum{
     DIFFSTATION = 12,
     NAVSTATUS = 13,
 } gns_data_fields_t;
+
+
+typedef enum{
+    PUBX_ID = 0,
+    MSG_ID = 1,
+    TIME = 2,
+    LAT = 3,
+    NS = 4,
+    LON = 5,
+    EW = 6,
+    ALTREF = 7,
+    NAVSTATUS = 8,
+    HACC = 9,
+    VACC = 10,
+    SOG = 11,
+    COG = 12,
+    VVEL = 13,
+    DIFFAGE = 14,
+    HDOP = 15,
+    VDOP = 16,
+    TDOP = 17,
+    NUMSV = 18,
+    RESERVED = 19,
+    DR = 20,
+} pubx_data_fields_t;
+
 #endif /* TYPES_H */

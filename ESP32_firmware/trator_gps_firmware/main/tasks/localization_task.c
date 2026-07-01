@@ -36,6 +36,7 @@ void nmea_parser(nmea_raw_data_struct *raw_data)
 
         gps_msg_type = check_gps_type(raw_data->rx_buffer);
         raw_data->parser_index = 0; // Reset parser index before parsing
+        ESP_LOGW("GPS", "The GPS message type is: %d", gps_msg_type);
         switch (gps_msg_type)
         {
         case GNS:
@@ -79,23 +80,25 @@ void localization_task(void *pvParameters)
     uint8_t index;
     zedf9p_incoming_data_t incoming_data;
     gps_msg_t gps_msg_type;
-    nmea_raw_data_struct raw_data;
+    nmea_raw_data_struct raw_data; // to pass it for treatment and parsing
+    nmea_raw_data_struct received_data; // to receive the data from the gps module
     raw_data.index = 0;
     raw_data.line_len = 0;
+    bool can_process_msg = false;
 
     // invalid checksum
     char raw_buffer_test1[] = "$GNGNS,122310.20,3843.3382,N,00908.3581,W,AN,07,0.9,78.5,47.2,,*5F";
     // valid checksum
     char raw_buffer_test2[] = "$GNGNS,122310.20,3843.3382,N,00908.3581,W,AN,07,0.9,78.5,47.2,,*79";
-    char raw_buffer_test3[] = "$GNGNS,1.1,2.2,N,3.3,E,A,4,5.5,6.6,7.7,8,9,A*00";
+    char raw_buffer_test3[] = "$GPGNS,122310.2,,,,,,07,,,,5.2,23,V*07";
 
     while (1)
     {
-        // Here the functions of the gps and other sensors will be used to always be calculating the position of the tractor
-        // For example, read the gps data and update the position of the tractor in a global variable or a queue
-        // ESP_LOGI(TAG, "Localization task running");
+        // TO DO: Logic of double buffer, I want to have one to receive, another one to be treated
         strcpy(raw_data.rx_buffer, raw_buffer_test2);
         nmea_parser(&raw_data);
+
+        vTaskDelay(pdMS_TO_TICKS(2000)); 
         /*
 
          if (zedf9p_data_receiver(&raw_data))
@@ -144,7 +147,7 @@ void localization_task(void *pvParameters)
                 ESP_LOGW(TAG, "Skipping corrupted NMEA data");
             }
         */
-        vTaskDelay(pdMS_TO_TICKS(2000)); 
+        
         // Normal Delay for 1 ms to avoid busy waiting, 2 seconds to debug easier
     }
 }
