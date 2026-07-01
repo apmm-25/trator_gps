@@ -45,21 +45,22 @@ void state_machine_task(void* pvParameters){
         // Here the functions of the state machine will be used to always be managing the states of the tractor
         // For example, read the state machine data and update the state of the tractor in a global variable or a queue
         
-        ESP_LOGI(TAG, "State machine task running");
         if (xSemaphoreTake(settings_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
             system_data.delta_pos = received_settings_data.delta_pos;
-            ESP_LOGI(TAG, "Test getting mutex on the settings_data");
+            //ESP_LOGI(TAG, "Test getting mutex on the settings_data");
             xSemaphoreGive(settings_data_mutex);
         } else {
             ESP_LOGW(TAG, "Failed to take settings_data_mutex");
         }
 
-        if(xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE){
-            ESP_LOGI(TAG, "Test getting mutex on the gps_data");
-            //curr_pos_gps_data.altitude = gps_data.altitude;
-            //curr_pos_gps_data.latitude = gps_data.latitude;
-            //curr_pos_gps_data.longitude = gps_data.longitude;
-        }
+        //if(xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE){
+        //    ESP_LOGI(TAG, "Test getting mutex on the gps_data");
+        //    //curr_pos_gps_data.altitude = gps_data.altitude;
+        //    //curr_pos_gps_data.latitude = gps_data.latitude;
+        //    //curr_pos_gps_data.longitude = gps_data.longitude;
+        //      xSemaphoreGive(gps_data_mutex);
+        //     
+        //}
 
         // read the system_state
         EventBits_t bits = xEventGroupGetBits(system_events);
@@ -71,6 +72,7 @@ void state_machine_task(void* pvParameters){
         }
         // call next state
         state_machine_loop(&curr_state, system_data, &gps_tracker);
+        //ESP_LOGI(TAG, "State machine task running");
         vTaskDelay(pdMS_TO_TICKS(50)); // Delay for 50 ms to avoid busy waiting
     }
 }

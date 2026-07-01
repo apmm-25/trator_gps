@@ -33,8 +33,8 @@ void button_task(void *pvParameters)
 
         // Check button state and trigger actions based on the button press
         // For example, if the button is pressed, change the state of the state machine or trigger an event
-        ESP_LOGI(TAG, "Button task running");
-        vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100 ms to avoid busy waiting
+        //ESP_LOGI(TAG, "Button task running");
+         // Delay for 100 ms to avoid busy waiting
         if (!gpio_get_level(BUTTON_IN))
         {
 
@@ -67,5 +67,7 @@ void button_task(void *pvParameters)
         {
             xEventGroupClearBits(system_events, EVENT_PLANT_MODE);
         }
+
+        vTaskDelay(pdMS_TO_TICKS(100));
     }
 }

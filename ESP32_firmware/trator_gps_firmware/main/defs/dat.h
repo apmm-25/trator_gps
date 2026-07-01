@@ -6,6 +6,7 @@
     If a change is made add the day and the title of the change here:
 
     24/6/2026 - Initial creation of the file
+    1/7/2026 -  Changed the data types of the latitude, longitude and altitude to double to increase precision
     
 
 
@@ -37,12 +38,12 @@ typedef struct {
 } GPSData; // possivelmente inutil
 
 typedef struct {
-    float latitude;
-    float longitude;
-    float altitude;
+    double latitude;
+    double longitude;
+    double altitude;
     char EW;
     char NS;
-    uint64_t timestamp;
+    double timestamp;
     uint16_t satellite_number;
     uint8_t checksum;
 } zedf9p_incoming_data_t;

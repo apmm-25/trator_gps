@@ -31,7 +31,7 @@ void webpage_task(void* pvParameters){
     while(1){
         // Here the functions of the web page management will be used to communicate with the tractor changes in its settings, and show some status information
         // For example, read the settings from a global variable or a queue and update the web page accordingly
-        ESP_LOGI(TAG, "Webpage task running");
+        //ESP_LOGI(TAG, "Webpage task running");
         vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100 ms to avoid busy waiting
 
     }
