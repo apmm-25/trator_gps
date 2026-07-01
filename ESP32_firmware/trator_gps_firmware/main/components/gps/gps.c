@@ -402,11 +402,3 @@ gps_msg_t check_gps_type(char *data_buffer)
     }
 }
 
-
-
-zedf9p_incoming_data_t PUBX_parser(nmea_raw_data_struct *data)
-{
-
-    return ret;
-}
-
