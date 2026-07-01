@@ -37,22 +37,7 @@ void nmea_parser(nmea_raw_data_struct *raw_data)
         gps_msg_type = check_gps_type(raw_data->rx_buffer);
         raw_data->parser_index = 0; // Reset parser index before parsing
         ESP_LOGW("GPS", "The GPS message type is: %d", gps_msg_type);
-        switch (gps_msg_type)
-        {
-        case GNS:
-            ESP_LOGI("GPS", "I Have entered the GNS_parser case");
-            incoming_data = GNS_parser(raw_data);
-            break;
-        case PUBX:
-            // incoming_data = PUBX_parser(raw_data);
-            break;
-
-        case UNDEFINED:
-            break;
-
-        default:
-            break;
-        }
+        nmea_gps_type_loop(raw_data, gps_msg_type);
         debug_function(&incoming_data);
     }
     else
@@ -91,6 +76,7 @@ void localization_task(void *pvParameters)
     // valid checksum
     char raw_buffer_test2[] = "$GNGNS,122310.20,3843.3382,N,00908.3581,W,AN,07,0.9,78.5,47.2,,*79";
     char raw_buffer_test3[] = "$GPGNS,122310.2,,,,,,07,,,,5.2,23,V*07";
+    char pubx_buffer_test[] = "$PUBX,00,081350.00,4717.113210,N,00833.915187,E,546.589,G3,2.1,2.0,0.007,77.52,0.007,,0.92,1.19,0.77,9,0,0*5B";
 
     while (1)
     {

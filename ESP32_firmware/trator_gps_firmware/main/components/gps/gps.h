@@ -31,5 +31,7 @@ bool nmea_checksum_comparison(const nmea_raw_data_struct* data);
 
 gps_msg_t check_gps_type(char *data_buffer);
 
+zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t gps_msg_type);
+
 #endif /* GPS_H */
 

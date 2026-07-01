@@ -165,7 +165,8 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
     int sub_buffer_index = 0;
     char sub_buffer[GPS_DATA_FIELD_MAX_STR_LEN];
     int cpy_index = 0; // copy of the latest index as reference for the sub_buffer creation
-
+    pubx_data_fields_t pubx_field_index = 0;
+    gns_data_fields_t gns_field_index = 0;
     ESP_LOGI("GNS_parser", "phrase to be parsed: %s", (data->rx_buffer));
 
     while ((data->rx_buffer[data->parser_index]) != '\0' && (data->rx_buffer[data->parser_index]) != GPS_CHECKSUM_FIELD_INDICATOR)
@@ -209,32 +210,32 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                 switch (msg_field_index)
                 {
 
-                case TIME:
+                case GNS_TIME:
                     double timestamp_ = (double)nmea_float_parser(sub_buffer);
                     ret.timestamp = timestamp_;
                     break;
 
-                case LAT:
+                case GNS_LAT:
                     ret.latitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
-                case NS:
+                case GNS_NS:
                     ret.NS = sub_buffer[0];
                     break;
 
-                case LON:
+                case GNS_LON:
                     ret.longitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
-                case EW:
+                case GNS_EW:
                     ret.EW = sub_buffer[0];
                     break;
 
-                case NUMSV:
+                case GNS_NUMSV:
                     ret.satellite_number = nmea_int_parser(sub_buffer);
                     break;
 
-                case ALT:
+                case GNS_ALT:
                     ret.altitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
@@ -248,26 +249,26 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                 switch (msg_field_index)
                 {
                     // Add PUBX-specific field parsing cases here
-                    case TIME:
+                    case PUBX_TIME:
                         double timestamp_ = (double)nmea_float_parser(sub_buffer);
                         ret.timestamp = timestamp_;
                         break;
-                    case LAT:
+                    case PUBX_LAT:
                         ret.latitude = (double)nmea_float_parser(sub_buffer);
                         break;
-                    case NS:
+                    case PUBX_NS:
                         ret.NS = sub_buffer[0];
                         break;
-                    case LON:
+                    case PUBX_LON:
                         ret.longitude = (double)nmea_float_parser(sub_buffer);
                         break;
-                    case EW:
+                    case PUBX_EW:
                         ret.EW = sub_buffer[0];
                         break;
-                    case NUMSV:
+                    case PUBX_NUMSV:
                         ret.satellite_number = nmea_int_parser(sub_buffer);
                         break;
-                    case ALTREF:
+                    case PUBX_ALTREF:
                         ret.altitude = (double)nmea_float_parser(sub_buffer);
                         break;
                     default:
@@ -276,6 +277,7 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
             }
         }
     }
+    return ret;
 }
 
 
@@ -333,32 +335,32 @@ zedf9p_incoming_data_t GNS_parser(nmea_raw_data_struct *data)
                 switch (msg_field_index)
                 {
 
-                case TIME:
+                case GNS_TIME:
                     double timestamp_ = (double)nmea_float_parser(sub_buffer);
                     ret.timestamp = timestamp_;
                     break;
 
-                case LAT:
+                case GNS_LAT:
                     ret.latitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
-                case NS:
+                case GNS_NS:
                     ret.NS = sub_buffer[0];
                     break;
 
-                case LON:
+                case GNS_LON:
                     ret.longitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
-                case EW:
+                case GNS_EW:
                     ret.EW = sub_buffer[0];
                     break;
 
-                case NUMSV:
+                case GNS_NUMSV:
                     ret.satellite_number = nmea_int_parser(sub_buffer);
                     break;
 
-                case ALT:
+                case GNS_ALT:
                     ret.altitude = (double)nmea_float_parser(sub_buffer);
                     break;
 
