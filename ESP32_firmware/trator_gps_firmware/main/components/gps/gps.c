@@ -405,3 +405,37 @@ gps_msg_t check_gps_type(char *data_buffer)
     }
 }
 
+/* Passes a copy of the extracted gps data and transforms into actual decimal degrees lat/lon/altitude data */
+GPSData transform_into_decimal_degrees(zedf9p_incoming_data_t data){
+    GPSData ret = {0};
+
+    double lat_degrees = floor((data.latitude / 100));
+    double lon_degrees = floor((data.longitude / 100));
+
+    double lat_minutes = data.latitude - (lat_degrees * 100);
+    double lon_minutes = data.longitude - (lon_degrees * 100.0);
+    
+    ret.latitude = (double)lat_degrees + (lat_minutes / 60.0); 
+    ret.longitude = (double)lon_degrees + (lon_minutes / 60.0); 
+    ret.altitude = data.altitude; 
+
+    ret.latitude = (data.NS == 'S') ? -ret.latitude : ret.latitude; 
+    ret.longitude = (data.EW == 'W') ? -ret.longitude : ret.longitude; 
+
+    return ret; 
+}
+
+uint16_t calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos){
+
+    double lat1r = last_pos.latitude * M_PI / 180.0;
+    double lat2r = curr_pos.latitude * M_PI / 180.0;
+    double dlat = (curr_pos.latitude - last_pos.latitude) * M_PI / 180.0;
+    double dlon = (curr_pos.longitude - last_pos.longitude) * M_PI / 180.0;
+
+    double dx = dlon * cos((lat1r + lat2r) * 0.5) * EARTH_RADIUS;
+    double dy = dlat * EARTH_RADIUS;
+    double dz = (curr_pos.altitude - last_pos.altitude);
+
+    return sqrt(dx*dx + dy*dy + dz*dz);
+
+}

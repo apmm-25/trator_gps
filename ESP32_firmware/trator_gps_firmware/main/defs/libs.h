@@ -16,6 +16,7 @@
 
 #include <stdint.h>
 #include "types.h"
+#include <math.h>
 
 #include "driver/uart.h"
 #include "esp_log.h"
@@ -28,6 +29,7 @@
 #include "freertos/semphr.h"
 #include "freertos/event_groups.h"
 #include "esp_timer.h"
+
 
 
 #endif /* LIBS_H */

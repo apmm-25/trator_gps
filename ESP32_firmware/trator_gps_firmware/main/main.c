@@ -28,7 +28,6 @@ EventGroupHandle_t system_events;
 sys_data_t system_data;
 
 
-
 void GPIO_init(void){
 
     gpio_config_t io_config = {};
@@ -64,6 +63,11 @@ void default_system_data_init(void){
     
     system_data.delta_pos = DEFAULT_DELTA_POS;
     system_data.plant_time = DEFAULT_PLANT_TIME;
+    gps_data.altitude = GPS_NULL_ISLAND_ALTITUDE;
+    gps_data.latitude = GPS_NULL_ISLAND_LATITUDE;
+    gps_data.longitude = GPS_NULL_ISLAND_LONGITUDE;
+    
+    
     return;
 }
 

@@ -18,9 +18,15 @@
 
 
 #include "dat.h"
+#include "gps.h"
 #include "types.h"
 #include "libs.h"
 #include "serial_comms.h"
+
+// GENERAL CONSTANTS
+
+#define EARTH_RADIUS 6371000.0 // in meters
+
 
 
 // LED INITIALIZATION
@@ -29,6 +35,8 @@
 #define RED_LED_PIN GPIO_NUM_21
 #define YELLOW_LED_PIN GPIO_NUM_19
 #define BUTTON_IN GPIO_NUM_35
+#define ACTIVATE_PLANTING GPIO_NUM_4
+
 
 #define GPS_UART UART_NUM_2
 #define GPS_UART_TX GPIO_NUM_17
@@ -56,6 +64,9 @@
 #define GPS_DATA_FIELD_EAST_INDICATOR 'E'
 #define GPS_DATA_FIELD_WEST_INDICATOR 'W'
 #define GPS_DATA_FIELD_MAX_STR_LEN 25
+#define GPS_NULL_ISLAND_LATITUDE 0.0
+#define GPS_NULL_ISLAND_LONGITUDE 0.0
+#define GPS_NULL_ISLAND_ALTITUDE 0.0
 
 
 // Extern variables
@@ -67,6 +78,7 @@ extern web_data_t web_data_to_send;
 extern EventGroupHandle_t system_events;
 extern sys_data_t system_data;
 extern button_t button_state;
+
 
 
 

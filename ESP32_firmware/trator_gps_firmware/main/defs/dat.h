@@ -19,6 +19,13 @@
 #include "libs.h"
 
 typedef struct {
+    double latitude;
+    double longitude;
+    double altitude;
+} GPSData; // possivelmente inutil
+
+
+typedef struct {
    serial_comms_type_t comms_type; 
    uint32_t baudrate;
    uint8_t parity;
@@ -29,13 +36,10 @@ typedef struct {
 typedef struct {
     bool first_sample;
     uint16_t accumulated_distance;
+    GPSData last_position;
+    GPSData current_position;
 } gps_tracker_t;
 
-typedef struct {
-    float latitude;
-    float longitude;
-    float altitude;
-} GPSData; // possivelmente inutil
 
 typedef struct {
     double latitude;
@@ -58,18 +62,22 @@ typedef struct {
 typedef struct {
     bool reset;
     uint8_t delta_pos;
+    double allowed_delta_plant_error;
     uint8_t plant_time;
 
 } web_cmds_t; // Structure that holds incomming commands and changes to constants incoming from the web app
 
 typedef struct {
     uint8_t delta_pos;
+    double allowed_delta_plant_error;
     uint16_t plant_time;
 
 } sys_data_t; // Structure that holds system data to be used across the project
 
 typedef struct {
     bool plant_mode_active;
+    uint64_t total_plantings_this_session;
+    uint8_t current_acc_distance;
     GPSData gps_data;
 } web_data_t; // Structure that holds data to be sent to the web interface to show the user
 
