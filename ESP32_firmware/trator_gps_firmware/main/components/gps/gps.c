@@ -274,6 +274,7 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                     default:
                         break;
                 }
+                ESP_LOGI("PUBX_parser", "Parsed PUBX field index: %d, value: %s", msg_field_index, sub_buffer);
             }
         }
     }
