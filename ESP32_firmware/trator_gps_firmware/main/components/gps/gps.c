@@ -17,7 +17,7 @@ float char_to_number_extraction(char *sub_string, int len)
     float ret_val = 0;
     float scale = 1;
     bool decimal = false;
-    ESP_LOGW("CHAR_TO_FLOAT_CONV", "Here is the sub_string: %s", sub_string);
+    //ESP_LOGW("CHAR_TO_FLOAT_CONV", "Here is the sub_string: %s", sub_string);
 
     for (size_t i = 0; i < len; i++)
     {
@@ -38,7 +38,7 @@ float char_to_number_extraction(char *sub_string, int len)
             }
         }
 
-        ESP_LOGW("CHAR_TO_FLOAT_CONV", "Here is the float value: %f, Iteration: %d", ret_val, i);
+        //ESP_LOGW("CHAR_TO_FLOAT_CONV", "Here is the float value: %f, Iteration: %d", ret_val, i);
     }
 
     return ret_val;
@@ -103,7 +103,8 @@ uint8_t nmea_checksum_computation(const char *sentence)
 }
 
 bool nmea_checksum_comparison(const nmea_raw_data_struct *data)
-{
+{   
+    // refactor para usar os indexs dentro da estrutura
     uint8_t rx_checksum = nmea_checksum_computation(data->rx_buffer);
     uint8_t index = 0;
     uint8_t tx_checksum;
@@ -118,15 +119,15 @@ bool nmea_checksum_comparison(const nmea_raw_data_struct *data)
     {
 
         tx_checksum = hex_to_byte(data->rx_buffer[(index + 1)], data->rx_buffer[(index + 2)]);
-        ESP_LOGI("NMEA_CHECKSUM_COMP", "Checksum val: %X", tx_checksum);
+        //ESP_LOGI("NMEA_CHECKSUM_COMP", "Checksum val: %X", tx_checksum);
         if (tx_checksum == rx_checksum)
         {
-            ESP_LOGW("NMEA_CHECKSUM_COMP", "CHECKSUM VALIDATED");
+            //ESP_LOGW("NMEA_CHECKSUM_COMP", "CHECKSUM VALIDATED");
             return true;
         }
         else
         {
-            ESP_LOGW("NMEA_CHECKSUM_COMP", "CHECKSUM REJECTED");
+            //ESP_LOGW("NMEA_CHECKSUM_COMP", "CHECKSUM REJECTED");
 
             return false;
         }
@@ -134,7 +135,7 @@ bool nmea_checksum_comparison(const nmea_raw_data_struct *data)
     else
     {
 
-        ESP_LOGW("NMEA CHECKSUM CHECK", "REACHED END OF LINE WITHOUT FINDING CHECKSUM FIELD");
+        //ESP_LOGW("NMEA CHECKSUM CHECK", "REACHED END OF LINE WITHOUT FINDING CHECKSUM FIELD");
         return false;
     }
 }
@@ -167,12 +168,12 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
     int cpy_index = 0; // copy of the latest index as reference for the sub_buffer creation
     pubx_data_fields_t pubx_field_index = 0;
     gns_data_fields_t gns_field_index = 0;
-    ESP_LOGI("GNS_parser", "phrase to be parsed: %s", (data->rx_buffer));
+    //ESP_LOGI("GNS_parser", "phrase to be parsed: %s", (data->rx_buffer));
 
     while ((data->rx_buffer[data->parser_index]) != '\0' && (data->rx_buffer[data->parser_index]) != GPS_CHECKSUM_FIELD_INDICATOR)
     {
 
-        ESP_LOGI("GNS_parser", "char to parse: %c", (data->rx_buffer[data->parser_index]));
+        //ESP_LOGI("GNS_parser", "char to parse: %c", (data->rx_buffer[data->parser_index]));
         if ((data->rx_buffer[data->parser_index]) == GPS_DATA_INITIAL_CHAR)
         {
             //$ começa os dados
@@ -201,8 +202,6 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
             data->parser_index = cpy_index;
             if (sub_buffer_index == 0)
             {
-
-                ESP_LOGW("GNS_parser", "Empty field detected at index: %d", msg_field_index);
                 continue; // Skip processing for empty fields
             }
             else if (sub_buffer_index > 0 && gps_msg_type == GNS)
@@ -238,6 +237,9 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                 case GNS_ALT:
                     ret.altitude = (double)nmea_float_parser(sub_buffer);
                     break;
+                case GNS_HDOP:
+                    ret.HDOP = (double)nmea_float_parser(sub_buffer);
+                    break;
 
                 default:
 
@@ -271,10 +273,13 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                     case PUBX_ALTREF:
                         ret.altitude = (double)nmea_float_parser(sub_buffer);
                         break;
+                    case PUBX_HDOP:
+                        ret.HDOP = (double)nmea_float_parser(sub_buffer);
+                        break;
                     default:
                         break;
                 }
-                ESP_LOGI("PUBX_parser", "Parsed PUBX field index: %d, value: %s", msg_field_index, sub_buffer);
+                //ESP_LOGI("PUBX_parser", "Parsed PUBX field index: %d, value: %s", msg_field_index, sub_buffer);
             }
         }
     }
@@ -283,7 +288,7 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
 
 
 
-
+// Legacy function for GNS parsing, kept for reference
 zedf9p_incoming_data_t GNS_parser(nmea_raw_data_struct *data)
 {
     int msg_field_index = 0;
@@ -427,6 +432,9 @@ GPSData transform_into_decimal_degrees(zedf9p_incoming_data_t data){
 
 uint16_t calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos){
 
+    if(curr_pos.HDOP > 5.0){
+        return 0; // If the HDOP is greater than 5.0, return 0 as the distance is not reliable
+    }
     double lat1r = last_pos.latitude * M_PI / 180.0;
     double lat2r = curr_pos.latitude * M_PI / 180.0;
     double dlat = (curr_pos.latitude - last_pos.latitude) * M_PI / 180.0;

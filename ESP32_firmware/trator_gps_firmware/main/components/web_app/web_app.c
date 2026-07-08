@@ -1,0 +1,208 @@
+/*
+    Author: António Malato
+    This is the implementation file for functions of the web app
+
+    If a change is made add the day and the title of the change here:
+
+
+    05/7/2026 - Added the start webserver function
+
+
+*/
+#include "web_app.h"
+
+static esp_err_t main_page_handler(httpd_req_t *req)
+{
+    httpd_resp_set_type(req, "text/html");
+    httpd_resp_send(req, index_html, HTTPD_RESP_USE_STRLEN);
+
+    return ESP_OK;
+}
+
+static esp_err_t get_handler_outputs(httpd_req_t *req)
+{
+    // gets the output data the browser needs to get
+
+    cJSON *root = cJSON_CreateObject();
+    web_data_t web_data_to_send_local;
+
+    if (xSemaphoreTake(web_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+
+        web_data_to_send_local.gps_data = web_data_to_send.gps_data;
+        web_data_to_send_local.plant_data = web_data_to_send.plant_data;
+
+        // ESP_LOGI(TAG, "Test getting mutex on the settings_data");
+        xSemaphoreGive(web_data_mutex);
+    }
+    else
+    {
+        ESP_LOGW("web_get_handler", "Failed to take settings_data_mutex");
+    }
+
+    cJSON_AddBoolToObject(root, "plant_mode_active", web_data_to_send_local.plant_data.plant_mode_active);
+    ESP_LOGI("web_get_handler", "val for the plant_mode_active %d", web_data_to_send_local.plant_data.plant_mode_active);
+    cJSON_AddNumberToObject(root, "totalPlantings", web_data_to_send_local.plant_data.numPlants);
+    cJSON_AddNumberToObject(root, "acc_distance", web_data_to_send_local.plant_data.current_acc_distance);
+
+    cJSON *gps_data = cJSON_CreateObject();
+    cJSON_AddNumberToObject(gps_data, "lat", web_data_to_send_local.gps_data.latitude);
+    cJSON_AddNumberToObject(gps_data, "lon", web_data_to_send_local.gps_data.longitude);
+    cJSON_AddNumberToObject(gps_data, "alt", web_data_to_send_local.gps_data.altitude);
+    cJSON_AddNumberToObject(gps_data, "hdop", web_data_to_send_local.gps_data.HDOP);
+    cJSON_AddNumberToObject(gps_data, "sat", web_data_to_send_local.gps_data.satellite_number);
+
+    // Attach GPS object to root
+    cJSON_AddItemToObject(root, "gps_data", gps_data);
+
+    httpd_resp_set_type(
+        req,
+        "application/json");
+
+    // Transforms the JSON object into a string
+    char *json_response = cJSON_PrintUnformatted(root);
+
+    // SEND IT
+    if (json_response != NULL)
+    {
+        httpd_resp_send(
+            req,
+            json_response,
+            HTTPD_RESP_USE_STRLEN);
+        free(json_response);
+    }
+    else
+    {
+        ESP_LOGE("web_get_handler", "Failed to create JSON response");
+        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "JSON allocation failed");
+    }
+
+    cJSON_Delete(root);
+
+    return ESP_OK;
+}
+
+static esp_err_t post_handler_inputs(httpd_req_t *req)
+{
+    /*
+        TO DO: Retrieve data from json buffer parsed into the structure
+    */
+
+    int data_len = req->content_len + 1;
+
+    char web_data_buffer[data_len];
+    int ret = httpd_req_recv(req, web_data_buffer, req->content_len);
+    if (ret <= 0)
+    {
+        return ESP_FAIL;
+    }
+
+    web_data_buffer[ret] = '\0';
+
+    // parse with JSON
+
+    cJSON *received_root = cJSON_Parse(web_data_buffer);
+    cJSON *delta_pos_item = cJSON_GetObjectItem(received_root, "deltaPosition");
+    cJSON *allowedError_item = cJSON_GetObjectItem(received_root, "allowedError");
+    cJSON *plantTime_item = cJSON_GetObjectItem(received_root, "plantTime");
+    cJSON *reset_item = cJSON_GetObjectItem(received_root, "resetToggle");
+
+    if (cJSON_IsNumber(delta_pos_item))
+    {
+
+        web_page_received_settings_data_snapshot.delta_pos = (uint8_t)delta_pos_item->valueint;
+    }
+    else
+    {
+
+        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the delta_pos field");
+    }
+
+    if (cJSON_IsNumber(allowedError_item))
+    {
+
+        web_page_received_settings_data_snapshot.allowed_delta_plant_error = (double)allowedError_item->valuedouble;
+    }
+    else
+    {
+
+        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the allowed error field");
+    }
+
+    if (cJSON_IsNumber(plantTime_item))
+    {
+
+        web_page_received_settings_data_snapshot.plant_time = (uint8_t)plantTime_item->valueint;
+    }
+    else
+    {
+
+        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the plant time field");
+    }
+
+    if (cJSON_IsBool(reset_item))
+    {
+
+        web_page_received_settings_data_snapshot.reset = cJSON_IsTrue(reset_item);
+    }
+    else
+    {
+
+        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the reset item field");
+    }
+
+    // Gets the data from the browser and puts it in the received_settings_data variable
+    if (xSemaphoreTake(sys_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    {
+        received_settings_data.delta_pos = web_page_received_settings_data_snapshot.delta_pos;
+        received_settings_data.allowed_delta_plant_error = web_page_received_settings_data_snapshot.allowed_delta_plant_error;
+        received_settings_data.plant_time = web_page_received_settings_data_snapshot.plant_time;
+        received_settings_data.reset = web_page_received_settings_data_snapshot.reset;
+    }
+    else
+    {
+        ESP_LOGW("web_app_handler", "Failed to take sys_data_mutex");
+    }
+
+    cJSON_Delete(received_root);
+    return ESP_OK;
+}
+
+httpd_handle_t start_webserver()
+{
+    static const httpd_uri_t main_page = {
+        .uri = "/",
+        .method = HTTP_GET,
+        .handler = main_page_handler,
+        .user_ctx = NULL};
+
+    static const httpd_uri_t uri_input = {
+        .uri = "/inputs",
+        .method = HTTP_POST,
+        .handler = post_handler_inputs,
+        .user_ctx = NULL};
+
+    static const httpd_uri_t uri_output = {
+        .uri = "/outputs",
+        .method = HTTP_GET,
+        .handler = get_handler_outputs,
+        .user_ctx = NULL};
+    httpd_config_t config = HTTPD_DEFAULT_CONFIG();
+    httpd_handle_t server = NULL;
+    if (httpd_start(&server, &config) == ESP_OK)
+    {
+        ESP_LOGI("WEB_APP", "Web server started");
+        // Register URI handlers here if needed
+        httpd_register_uri_handler(server, &main_page);
+        httpd_register_uri_handler(server, &uri_input);
+        httpd_register_uri_handler(server, &uri_output);
+
+        return server;
+    }
+    else
+    {
+        ESP_LOGE("WEB_APP", "Failed to start web server");
+        return NULL;
+    }
+    return server;
+}

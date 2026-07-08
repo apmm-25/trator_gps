@@ -7,6 +7,7 @@
     If a change is made add the day and the title of the change here:
 
     24/6/2026 - Initial creation of the file
+    05/7/2026 - Added the start webserver call
     
 */
 
@@ -14,6 +15,8 @@
 #include "web_page_management_task.h"
 
 static const char *TAG = "WEBPAGE_TASK";
+web_cmds_t web_page_received_settings_data_snapshot;
+web_data_t web_data_to_send_snapshot;
 
 
 void webpage_task_start(void){
@@ -26,12 +29,54 @@ ESP_LOGI(TAG, "Webpage task created");
 }
 
 void webpage_task(void* pvParameters){
+    GPSData web_curr_pos_gps_data;
     ESP_LOGI(TAG, "Webpage task started");
+    httpd_handle_t server = start_webserver();
+
+    if (server == NULL) {
+        ESP_LOGE(TAG, "Failed to start web server");
+        return;
+    } else {
+        ESP_LOGI(TAG, "Web server started");
+    }
 
     while(1){
-        // Here the functions of the web page management will be used to communicate with the tractor changes in its settings, and show some status information
-        // For example, read the settings from a global variable or a queue and update the web page accordingly
-        //ESP_LOGI(TAG, "Webpage task running");
+        // Gets the systems data to output in the browser
+
+        if(xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE){
+            ESP_LOGI(TAG, "Test getting mutex on the gps_data");
+            web_data_to_send_snapshot.gps_data.altitude = gps_data.altitude;
+            web_data_to_send_snapshot.gps_data.latitude = gps_data.latitude;
+            web_data_to_send_snapshot.gps_data.longitude = gps_data.longitude;
+            web_data_to_send_snapshot.gps_data.HDOP = gps_data.HDOP;
+            web_data_to_send_snapshot.gps_data.satellite_number = gps_data.satellite_number;
+            xSemaphoreGive(gps_data_mutex);
+        }
+
+         if(xSemaphoreTake(plant_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE){
+            
+            web_data_to_send_snapshot.plant_data.current_acc_distance = plant_data.current_acc_distance;
+            web_data_to_send_snapshot.plant_data.numPlants = plant_data.numPlants;
+            web_data_to_send_snapshot.plant_data.plant_mode_active = plant_data.plant_mode_active;
+            
+            xSemaphoreGive(plant_data_mutex);
+        }
+
+        if (xSemaphoreTake(web_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE) {
+            
+            web_data_to_send.gps_data = web_data_to_send_snapshot.gps_data;
+            web_data_to_send.plant_data = web_data_to_send_snapshot.plant_data;
+     
+            //ESP_LOGI(TAG, "Test getting mutex on the settings_data");
+            xSemaphoreGive(web_data_mutex);
+        } else {
+            ESP_LOGW(TAG, "Failed to take settings_data_mutex");
+        }
+
+        
+
+
+
         vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 100 ms to avoid busy waiting
 
     }

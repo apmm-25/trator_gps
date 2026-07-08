@@ -22,11 +22,18 @@
 #include "types.h"
 #include "libs.h"
 #include "serial_comms.h"
+#include "web_app.h"
 
 // GENERAL CONSTANTS
 
 #define EARTH_RADIUS 6371000.0 // in meters
+#define MAX_BUFFER_SIZE 256
+// WIFI ACCESS POINT CONSTANTS
 
+#define WIFI_SSID CONFIG_ESP_WIFI_SSID
+#define WIFI_PASSWORD CONFIG_ESP_WIFI_PASSWORD
+#define WIFI_CHANNEL CONFIG_ESP_WIFI_CHANNEL
+#define MAX_STA_CONN CONFIG_ESP_MAX_STA_CONN
 
 
 // LED INITIALIZATION
@@ -44,10 +51,14 @@
 
 #define DEFAULT_DELTA_POS 2 // Default delta position
 #define DEFAULT_PLANT_TIME 2000 // Default plant time in miliseconds
+#define DEFAULT_PLANT_ERROR 0.1
+
+
 
 #define EVENT_PLANT_MODE (1 << 0)
 #define EVENT_NEW_GPS_DATA (1 << 1)
 #define EVENT_NEW_SETTINGS_DATA (1 << 2)
+#define EVENT_REBOOT (1 << 3)
 #define BUTTON_PRESS_TIME 2000 // 2 miliseconds click
 
 
@@ -67,15 +78,22 @@
 #define GPS_NULL_ISLAND_LATITUDE 0.0
 #define GPS_NULL_ISLAND_LONGITUDE 0.0
 #define GPS_NULL_ISLAND_ALTITUDE 0.0
+#define GPS_DEFAULT_HDOP 0.0
+#define GPS_DEFAULT_SAT 0
+
 
 
 // Extern variables
+extern SemaphoreHandle_t plant_data_mutex;
+extern plant_data_t plant_data;
 extern SemaphoreHandle_t gps_data_mutex;
 extern GPSData gps_data;
-extern SemaphoreHandle_t settings_data_mutex;
+extern SemaphoreHandle_t sys_data_mutex;
+extern SemaphoreHandle_t web_data_mutex;
 extern web_cmds_t received_settings_data;
 extern web_data_t web_data_to_send;
 extern EventGroupHandle_t system_events;
+extern EventGroupHandle_t wifi_events;
 extern sys_data_t system_data;
 extern button_t button_state;
 

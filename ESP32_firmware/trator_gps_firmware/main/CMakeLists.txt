@@ -22,6 +22,7 @@ idf_component_register(SRCS "main.c"
                                 nvs_flash
                                 log
                                 esp_http_server
+                                
 
                        INCLUDE_DIRS "."
                                    "components/controller"

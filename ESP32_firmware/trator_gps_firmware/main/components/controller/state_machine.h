@@ -13,9 +13,12 @@
 
 #include "common.h"
 
-void state_machine_loop(state_machine_data_t* next_states, 
+void state_machine_loop(
+    
+    uint64_t* num_plantings,
+    state_machine_data_t *next_states, 
     sys_data_t sys_data, 
-    gps_tracker_t* gps_tracker
-    );
+    gps_tracker_t *gps_tracker);
+
 void set_led_planting_mode(bool on);
 #endif /* STATE_MACHINE_H */

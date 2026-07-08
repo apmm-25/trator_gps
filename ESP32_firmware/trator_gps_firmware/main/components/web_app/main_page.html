@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tractor Settings and Data</title>
+
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+            background: #f5f5f5;
+            margin: 40px;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: auto;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        h2 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px 5px;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+
+        .readonly {
+            background: #ececec;
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #ccc;
+            transition: .3s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background: white;
+            transition: .3s;
+            border-radius: 50%;
+        }
+
+        input:checked+.slider {
+            background: #4CAF50;
+        }
+
+        input:checked+.slider:before {
+            transform: translateX(26px);
+        }
+
+        .led {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #444;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        /* OFF */
+        .led.off {
+            background: #b00000;
+            box-shadow: 0 0 5px #500;
+        }
+
+        /* ON */
+        .led.on {
+            background: #00ff00;
+            box-shadow:
+                0 0 8px #00ff00,
+                0 0 15px #00ff00,
+                0 0 25px #00ff00;
+        }
+    </style>
+
+</head>
+
+<body>
+    <div class="header">
+        <h1>Tractor Settings and Data</h1>
+    </div>
+
+    <div class="container">
+
+        <div class="card">
+            <h2>Outputs</h2>
+
+            <table>
+
+                <tr>
+                    <td>Plant Mode Status</td>
+
+                    <td>
+                        <div id="activeLED" class="led off"></div>
+                    </td>
+
+                </tr>
+
+                <tr>
+                    <td>Number of Planted Seeds/Trees</td>
+                    <td><input class="readonly" id="numPlanted" type="text" value="0" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>Accumulated Distance</td>
+                    <td><input class="readonly" id="accDistance" type="text" value="0" readonly></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>GPS Data</h2>
+
+            <table>
+
+                <tr>
+                    <td>Latitude</td>
+                    <td><input class="readonly" id="latitude" type="text" value="0.000000" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>Longitude</td>
+                    <td><input class="readonly" id="longitude" type="text" value="0.000000" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>Altitude (m)</td>
+                    <td><input class="readonly" id="altitude" type="text" value="0.0" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>HDOP</td>
+                    <td><input class="readonly" id="hdop" type="text" value="0.0" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>Satellite Number</td>
+                    <td><input class="readonly" id="satellites" type="text" value="0" readonly></td>
+                </tr>
+
+            </table>
+        </div>
+
+        <div class="card">
+            <h2>Configuration Inputs</h2>
+
+            <table>
+
+                <tr>
+                    <td>Distance between plants</td>
+                    <td><input id="deltaPosition" type="number" min="0" max="255" value="10"></td>
+                </tr>
+
+                <tr>
+                    <td>Allowed Error in the distance (% of a meter) </td>
+                    <td><input id="allowedError" type="number" step="0.01" value="0.50"></td>
+                </tr>
+
+                <tr>
+                    <td>Plant Time (s)</td>
+                    <td><input id="plantTime" type="number" min="0" max="255" value="2"></td>
+                </tr>
+
+                <tr>
+                    <td>Reset</td>
+                    <td>
+                        <label class="switch">
+                            <input id="resetToggle" type="checkbox">
+                            <span class="slider"></span>
+                        </label>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" style="text-align:right;">
+
+                        <button onclick="send_input_data_to_server()">
+                            SEND
+                        </button>
+
+                    </td>
+                </tr>
+
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        // Example update functions
+
+        function setPlantingsDistanceAndTotal(totalPlantings, accDistance) {
+            document.getElementById("numPlanted").value = totalPlantings;
+            document.getElementById("accDistance").value = accDistance;
+        }
+
+        function setActive(active) {
+            const led = document.getElementById("activeLED");
+
+            if (active) {
+                led.classList.remove("off");
+                led.classList.add("on");
+            }
+            else {
+                led.classList.remove("on");
+                led.classList.add("off");
+            }
+        }
+        function setGPS(lat, lon, alt, hdop, sats) {
+            document.getElementById("latitude").value = lat.toFixed(6);
+            document.getElementById("longitude").value = lon.toFixed(6);
+            document.getElementById("altitude").value = alt.toFixed(2);
+            document.getElementById("hdop").value = hdop.toFixed(2);
+            document.getElementById("satellites").value = sats;
+        }
+
+        // Read configuration values
+        function getConfiguration() {
+            return {
+                deltaPosition: Number(document.getElementById("deltaPosition").value),
+                allowedError: Number(document.getElementById("allowedError").value),
+                plantTime: Number(document.getElementById("plantTime").value),
+                reset: document.getElementById("resetToggle").checked
+            };
+        }
+
+        async function refresh() {
+            try {
+                const response = await fetch("/outputs");
+                if (!response.ok) {
+                    return;
+                }
+
+                const data = await response.json();
+                setGPS(data.gps_data.lat, data.gps_data.lon, data.gps_data.alt, data.gps_data.hdop, data.gps_data.sat);
+                setActive(data.plant_mode_active);
+                setPlantingsDistanceAndTotal(data.totalPlantings, data.acc_distance);
+
+            } catch (err) {
+
+                console.log(err);
+            }
+
+
+        }
+
+        async function send_input_data_to_server() {
+            const data = getConfiguration();
+            await fetch("/inputs", {
+
+                method: "POST",
+
+                headers: {
+                    "Content-Type": "application/json"
+                },
+
+                body: JSON.stringify(data)
+
+            });
+        }
+        // Start updating after window finishes loading
+        window.onload = function () {
+            refresh();
+
+            setInterval(refresh, 500);
+        };
+    </script>
+
+</body>
+
+</html>

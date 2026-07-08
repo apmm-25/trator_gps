@@ -26,7 +26,7 @@ void set_led_wait_for_planting_mode()
     gpio_set_level(YELLOW_LED_PIN, true);
 }
 
-void state_machine_loop(state_machine_data_t *next_states, sys_data_t sys_data, gps_tracker_t *gps_tracker)
+void state_machine_loop(uint64_t* num_plantings,state_machine_data_t *next_states, sys_data_t sys_data_copy, gps_tracker_t *gps_tracker)
 {
     // Implement the state machine logic here
     // For example, check the current state and perform actions based on the state
@@ -53,19 +53,19 @@ void state_machine_loop(state_machine_data_t *next_states, sys_data_t sys_data, 
             // configurar o calcular da distancia acumulada guardar na variável geral de gps_tracker
             // se tiver no valor pretendido de distancia acumulada proximo sub_state é WAIT_FOR_PLANT
             local_delta_calculated = calculate_accumulated_distance(gps_tracker->last_position, gps_tracker->current_position);
-            if (local_delta_calculated > 0.1f)
-            {
+            if (local_delta_calculated > sys_data_copy.allowed_delta_plant_error)
+            {   
                 gps_tracker->accumulated_distance = gps_tracker->accumulated_distance + local_delta_calculated;
                 
-
                 ESP_LOGI("STATE MACHINE LOOP", "NORMAL OPERATION, ACCUMULATED DISTANCE: %d", gps_tracker->accumulated_distance);
-                if (gps_tracker->accumulated_distance >= sys_data.delta_pos)
+                if (gps_tracker->accumulated_distance >= sys_data_copy.delta_pos)
                 {
                     next_states->next_sub_state = WAIT_FOR_PLANT;
                     // 1 second 3.3V pulse to activate the planting mechanism
                     gpio_set_level(ACTIVATE_PLANTING, true);
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     gpio_set_level(ACTIVATE_PLANTING, false);
+                    (*num_plantings)++;
                 }
                 else
                 {

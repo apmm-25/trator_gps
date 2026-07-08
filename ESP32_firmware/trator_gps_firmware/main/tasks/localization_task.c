@@ -46,18 +46,20 @@ void nmea_parser(nmea_raw_data_struct *raw_data)
 
         gps_msg_type = check_gps_type(raw_data->rx_buffer);
         raw_data->parser_index = 0; // Reset parser index before parsing
-        ESP_LOGW("GPS", "The GPS message type is: %d", gps_msg_type);
+        //ESP_LOGW("GPS", "The GPS message type is: %d", gps_msg_type);
 
         incoming_data = nmea_gps_type_loop(raw_data, gps_msg_type);
         //debug_function(&incoming_data);
-        gps_data = transform_into_decimal_degrees(incoming_data);
+        gps_data_local_task = transform_into_decimal_degrees(incoming_data);
         //gps_function_converted_data_debug(&gps_data);
         if (xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
-            ESP_LOGI(TAG, "Test getting mutex on the gps_data");
-            gps_data_local_task.altitude = gps_data.altitude;
-            gps_data_local_task.latitude = gps_data.latitude;
-            gps_data_local_task.longitude = gps_data.longitude;
+            //ESP_LOGI(TAG, "Test getting mutex on the gps_data");
+            gps_data.latitude = gps_data_local_task.latitude;
+            gps_data.altitude = gps_data_local_task.altitude;
+            gps_data.longitude = gps_data_local_task.longitude;
+            gps_data.HDOP = gps_data_local_task.HDOP;
+            gps_data.satellite_number = gps_data_local_task.satellite_number;
             xSemaphoreGive(gps_data_mutex);
         }
     }
@@ -98,24 +100,26 @@ void localization_task(void *pvParameters)
     //// invalid checksum
     //char raw_buffer_test1[] = "$GNGNS,122310.20,3843.3382,N,00908.3581,W,AN,07,0.9,78.5,47.2,,*5F";
     //// valid checksum
-    //char raw_buffer_test2[] = "$GNGNS,122310.20,3843.3382,N,00908.3581,W,AN,07,0.9,78.5,47.2,,*79";
+    char raw_buffer_test2[] = "$GNGNS,122310.20,3843.3382,N,00908.3581,W,AN,07,0.9,78.5,47.2,,*79";
     //char raw_buffer_test3[] = "$GPGNS,122310.2,,,,,,07,,,,5.2,23,V*07";
     //char pubx_buffer_test[] = "$PUBX,00,081350.00,4717.113210,N,00833.915187,E,546.589,G3,2.1,2.0,0.007,77.52,0.007,,0.92,1.19,0.77,9,0,0*5F";
+    memcpy(raw_data.rx_buffer, raw_buffer_test2, sizeof(raw_buffer_test2));
+
 
     while (1)
     {
         // Logic loop for the localization task
-        if (zedf9p_data_receiver(&received_data))
-        {
-            raw_data = copy_data_for_processing(&received_data);
-            nmea_parser(&raw_data);
-        }
-        else
-        {
-            ESP_LOGW(TAG, "Skipping corrupted NMEA data");
-        }
-
-        ESP_LOGW(TAG,"SIMULATING DATA");
+        //if (zedf9p_data_receiver(&received_data))
+        //{
+        //    raw_data = copy_data_for_processing(&received_data);
+        //    nmea_parser(&raw_data);
+        //}
+        //else
+        //{
+        //    ESP_LOGW(TAG, "Skipping corrupted NMEA data");
+        //}
+        nmea_parser(&raw_data);
+        
         vTaskDelay(pdMS_TO_TICKS(50));
 
         // Normal Delay for 1 ms to avoid busy waiting, 2 seconds to debug easier
