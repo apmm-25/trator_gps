@@ -65,14 +65,14 @@ typedef struct {
     bool reset;
     uint8_t delta_pos;
     double allowed_delta_plant_error;
-    uint8_t plant_time; // miliseconds
+    uint64_t plant_time; // miliseconds
 
 } web_cmds_t; // Structure that holds incomming commands and changes to constants incoming from the web app
 
 typedef struct {
     uint8_t delta_pos;
     double allowed_delta_plant_error;
-    uint16_t plant_time;
+    uint64_t plant_time;
     
 } sys_data_t; // Structure that holds system data to be used across the project
 
@@ -83,8 +83,8 @@ typedef struct {
 } plant_data_t;
 
 typedef struct {
-    plant_data_t plant_data;
-    GPSData gps_data;
+    plant_data_t web_plant_data;
+    GPSData web_gps_data;
 } web_data_t; // Structure that holds data to be sent to the web interface to show the user
 
 typedef struct {

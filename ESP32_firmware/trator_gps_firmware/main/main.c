@@ -128,6 +128,11 @@ void default_system_data_init(void)
     system_data.plant_time = DEFAULT_PLANT_TIME;
     system_data.allowed_delta_plant_error = DEFAULT_PLANT_ERROR;
 
+    received_settings_data.delta_pos = DEFAULT_DELTA_POS;
+    received_settings_data.plant_time = DEFAULT_PLANT_TIME;
+    received_settings_data.allowed_delta_plant_error = DEFAULT_PLANT_ERROR;
+    received_settings_data.reset = false;
+
     gps_data.altitude = GPS_NULL_ISLAND_ALTITUDE;
     gps_data.latitude = GPS_NULL_ISLAND_LATITUDE;
     gps_data.longitude = GPS_NULL_ISLAND_LONGITUDE;
@@ -221,6 +226,9 @@ void app_main(void)
     // WIFI
     wifi_init_ap();
 
+    // SERIAL COMMS INITIALIZATION
+
+    serial_comms_init();
     // TASK INITIALIZATION
     button_task_start();
     localization_task_start();

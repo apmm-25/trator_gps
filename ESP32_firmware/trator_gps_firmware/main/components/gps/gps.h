@@ -19,7 +19,7 @@
 
 
 
-bool zedf9p_data_receiver(nmea_raw_data_struct* data);
+bool zedf9p_data_receiver(nmea_raw_data_struct* data, bool* receiving);
 
 zedf9p_incoming_data_t PUBX_parser(nmea_raw_data_struct* data);
 

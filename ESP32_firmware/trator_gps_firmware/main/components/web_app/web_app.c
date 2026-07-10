@@ -19,6 +19,23 @@ static esp_err_t main_page_handler(httpd_req_t *req)
     return ESP_OK;
 }
 
+bool webpage_input_validity_check(web_cmds_t web_cmds)
+{
+
+    if (web_cmds.delta_pos == 0)
+    {
+        return false;
+    }
+    else if (web_cmds.plant_time == 0)
+    {
+        return false;
+    }
+    else
+    {
+        return true;
+    }
+}
+
 static esp_err_t get_handler_outputs(httpd_req_t *req)
 {
     // gets the output data the browser needs to get
@@ -29,8 +46,8 @@ static esp_err_t get_handler_outputs(httpd_req_t *req)
     if (xSemaphoreTake(web_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
     {
 
-        web_data_to_send_local.gps_data = web_data_to_send.gps_data;
-        web_data_to_send_local.plant_data = web_data_to_send.plant_data;
+        web_data_to_send_local.web_gps_data = web_data_to_send.web_gps_data;
+        web_data_to_send_local.web_plant_data = web_data_to_send.web_plant_data;
 
         // ESP_LOGI(TAG, "Test getting mutex on the settings_data");
         xSemaphoreGive(web_data_mutex);
@@ -40,20 +57,19 @@ static esp_err_t get_handler_outputs(httpd_req_t *req)
         ESP_LOGW("web_get_handler", "Failed to take settings_data_mutex");
     }
 
-    cJSON_AddBoolToObject(root, "plant_mode_active", web_data_to_send_local.plant_data.plant_mode_active);
-    ESP_LOGI("web_get_handler", "val for the plant_mode_active %d", web_data_to_send_local.plant_data.plant_mode_active);
-    cJSON_AddNumberToObject(root, "totalPlantings", web_data_to_send_local.plant_data.numPlants);
-    cJSON_AddNumberToObject(root, "acc_distance", web_data_to_send_local.plant_data.current_acc_distance);
+    cJSON_AddBoolToObject(root, "plant_mode_active", web_data_to_send_local.web_plant_data.plant_mode_active);
+    cJSON_AddNumberToObject(root, "totalPlantings", web_data_to_send_local.web_plant_data.numPlants);
+    cJSON_AddNumberToObject(root, "acc_distance", web_data_to_send_local.web_plant_data.current_acc_distance);
 
-    cJSON *gps_data = cJSON_CreateObject();
-    cJSON_AddNumberToObject(gps_data, "lat", web_data_to_send_local.gps_data.latitude);
-    cJSON_AddNumberToObject(gps_data, "lon", web_data_to_send_local.gps_data.longitude);
-    cJSON_AddNumberToObject(gps_data, "alt", web_data_to_send_local.gps_data.altitude);
-    cJSON_AddNumberToObject(gps_data, "hdop", web_data_to_send_local.gps_data.HDOP);
-    cJSON_AddNumberToObject(gps_data, "sat", web_data_to_send_local.gps_data.satellite_number);
+    cJSON *gps_data_json = cJSON_CreateObject();
+    cJSON_AddNumberToObject(gps_data_json, "lat", web_data_to_send_local.web_gps_data.latitude);
+    cJSON_AddNumberToObject(gps_data_json, "lon", web_data_to_send_local.web_gps_data.longitude);
+    cJSON_AddNumberToObject(gps_data_json, "alt", web_data_to_send_local.web_gps_data.altitude);
+    cJSON_AddNumberToObject(gps_data_json, "hdop", web_data_to_send_local.web_gps_data.HDOP);
+    cJSON_AddNumberToObject(gps_data_json, "sat", web_data_to_send_local.web_gps_data.satellite_number);
 
     // Attach GPS object to root
-    cJSON_AddItemToObject(root, "gps_data", gps_data);
+    cJSON_AddItemToObject(root, "gps_data", gps_data_json);
 
     httpd_resp_set_type(
         req,
@@ -151,17 +167,21 @@ static esp_err_t post_handler_inputs(httpd_req_t *req)
         ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the reset item field");
     }
 
-    // Gets the data from the browser and puts it in the received_settings_data variable
-    if (xSemaphoreTake(sys_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+    // Only passes the received data if it has been checked
+    if (webpage_input_validity_check(web_page_received_settings_data_snapshot))
     {
-        received_settings_data.delta_pos = web_page_received_settings_data_snapshot.delta_pos;
-        received_settings_data.allowed_delta_plant_error = web_page_received_settings_data_snapshot.allowed_delta_plant_error;
-        received_settings_data.plant_time = web_page_received_settings_data_snapshot.plant_time;
-        received_settings_data.reset = web_page_received_settings_data_snapshot.reset;
-    }
-    else
-    {
-        ESP_LOGW("web_app_handler", "Failed to take sys_data_mutex");
+        // Gets the data from the browser and puts it in the received_settings_data variable
+        if (xSemaphoreTake(sys_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            received_settings_data.delta_pos = web_page_received_settings_data_snapshot.delta_pos;
+            received_settings_data.allowed_delta_plant_error = web_page_received_settings_data_snapshot.allowed_delta_plant_error;
+            received_settings_data.plant_time = web_page_received_settings_data_snapshot.plant_time;
+            received_settings_data.reset = web_page_received_settings_data_snapshot.reset;
+        }
+        else
+        {
+            ESP_LOGW("web_app_handler", "Failed to take sys_data_mutex");
+        }
     }
 
     cJSON_Delete(received_root);

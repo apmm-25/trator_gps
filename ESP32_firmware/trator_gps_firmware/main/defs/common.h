@@ -23,6 +23,7 @@
 #include "libs.h"
 #include "serial_comms.h"
 #include "web_app.h"
+#include "state_machine.h"
 
 // GENERAL CONSTANTS
 
@@ -64,12 +65,14 @@
 
 // GPS constants
 
+#define GPS_BEGIN_RECEIVE '$'
 #define GPS_LINE_TERMINATOR '\n'
 #define GPS_DATA_FIELD_TERMINATOR ','
 #define GPS_CHECKSUM_FIELD_INDICATOR '*'
 #define GPS_DATA_INITIAL_CHAR '$'
 #define PUBX_MSG_TYPE_ID "PUBX"
 #define GNS_MSG_TYPE_ID "GNS"
+#define GGA_MSG_TYPE_ID "GGA"
 #define GPS_DATA_FIELD_NORTH_INDICATOR 'N'
 #define GPS_DATA_FIELD_SOUTH_INDICATOR 'S'
 #define GPS_DATA_FIELD_EAST_INDICATOR 'E'

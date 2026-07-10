@@ -57,7 +57,7 @@ void state_machine_loop(uint64_t* num_plantings,state_machine_data_t *next_state
             {   
                 gps_tracker->accumulated_distance = gps_tracker->accumulated_distance + local_delta_calculated;
                 
-                ESP_LOGI("STATE MACHINE LOOP", "NORMAL OPERATION, ACCUMULATED DISTANCE: %d", gps_tracker->accumulated_distance);
+                
                 if (gps_tracker->accumulated_distance >= sys_data_copy.delta_pos)
                 {
                     next_states->next_sub_state = WAIT_FOR_PLANT;
@@ -66,6 +66,7 @@ void state_machine_loop(uint64_t* num_plantings,state_machine_data_t *next_state
                     vTaskDelay(pdMS_TO_TICKS(1000));
                     gpio_set_level(ACTIVATE_PLANTING, false);
                     (*num_plantings)++;
+                    gps_tracker->accumulated_distance = gps_tracker->accumulated_distance - sys_data_copy.delta_pos;
                 }
                 else
                 {
@@ -93,3 +94,5 @@ void state_machine_loop(uint64_t* num_plantings,state_machine_data_t *next_state
         break;
     }
 }
+
+

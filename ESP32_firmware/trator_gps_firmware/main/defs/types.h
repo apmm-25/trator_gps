@@ -5,6 +5,8 @@
     If a change is made add the day and the title of the change here:
 
     24/6/2026 - Initial creation of the file
+    1/7/2026 - Extended to parse PUBX messages
+    9/7/2926 - Extended to parse GGA messages
     
 
 
@@ -52,6 +54,8 @@ typedef enum {
     UNDEFINED = -1,
     GNS = 0,
     PUBX = 1,
+    GGA = 2,
+    GLL = 3,
 } gps_msg_t;
 
 typedef enum{
@@ -95,5 +99,37 @@ typedef enum{
     PUBX_RESERVED = 19,
     PUBX_DR = 20,
 } pubx_data_fields_t;
+
+
+typedef enum {
+    GGA_ID = 0,
+    GGA_TIME = 1,
+    GGA_LAT = 2,
+    GGA_NS = 3,
+    GGA_LON = 4,
+    GGA_EW = 5,
+    GGA_QUALITY = 6,
+    GGA_NUMSV = 7,
+    GGA_HDOP = 8, 
+    GGA_ALT = 9,
+    GGA_ALTUNIT = 10,
+    GGA_SEP = 11,
+    GGA_SEPUNIT = 12,
+    GGA_DIFFAGE = 13,
+    GGA_DIFFSTATION = 14,
+
+} gga_data_fields_t;
+
+typedef enum {
+    GLL_ID = 0,
+    GLL_LAT = 1,
+    GLL_NS = 2,
+    GLL_LON = 3,
+    GLL_EW = 4,
+    GLL_TIME = 5,
+    GLL_STAT = 6,
+    GLL_POSMODE = 7,
+} gll_data_fields_t;
+
 
 #endif /* TYPES_H */
