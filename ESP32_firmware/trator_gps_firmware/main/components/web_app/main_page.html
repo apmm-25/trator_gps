@@ -201,11 +201,6 @@
                 </tr>
 
                 <tr>
-                    <td>Allowed Error in the distance (% of a meter) </td>
-                    <td><input id="allowedError" type="number" step="0.01" value="0.10"></td>
-                </tr>
-
-                <tr>
                     <td>Plant Time (s)</td>
                     <td><input id="plantTime" type="number" min="0" max="255" value="2"></td>
                 </tr>
@@ -269,7 +264,6 @@
         function getConfiguration() {
             return {
                 deltaPosition: Number(document.getElementById("deltaPosition").value),
-                allowedError: Number(document.getElementById("allowedError").value),
                 plantTime: Number(document.getElementById("plantTime").value),
                 reset: document.getElementById("resetToggle").checked
             };

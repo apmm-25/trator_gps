@@ -116,71 +116,80 @@ static esp_err_t post_handler_inputs(httpd_req_t *req)
     web_data_buffer[ret] = '\0';
 
     // parse with JSON
-
     cJSON *received_root = cJSON_Parse(web_data_buffer);
-    cJSON *delta_pos_item = cJSON_GetObjectItem(received_root, "deltaPosition");
-    cJSON *allowedError_item = cJSON_GetObjectItem(received_root, "allowedError");
-    cJSON *plantTime_item = cJSON_GetObjectItem(received_root, "plantTime");
-    cJSON *reset_item = cJSON_GetObjectItem(received_root, "resetToggle");
 
-    if (cJSON_IsNumber(delta_pos_item))
+    if (received_root == NULL)
     {
-
-        web_page_received_settings_data_snapshot.delta_pos = (uint8_t)delta_pos_item->valueint;
+        ESP_LOGE("input handler", "Error return empty data from the browser");
+        return ESP_FAIL;
     }
     else
     {
+        cJSON *delta_pos_item = cJSON_GetObjectItem(received_root, "deltaPosition");
+        cJSON *plantTime_item = cJSON_GetObjectItem(received_root, "plantTime");
+        cJSON *reset_item = cJSON_GetObjectItem(received_root, "reset");
 
-        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the delta_pos field");
-    }
-
-    if (cJSON_IsNumber(allowedError_item))
-    {
-
-        web_page_received_settings_data_snapshot.allowed_delta_plant_error = (double)allowedError_item->valuedouble;
-    }
-    else
-    {
-
-        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the allowed error field");
-    }
-
-    if (cJSON_IsNumber(plantTime_item))
-    {
-
-        web_page_received_settings_data_snapshot.plant_time = (uint8_t)plantTime_item->valueint;
-    }
-    else
-    {
-
-        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the plant time field");
-    }
-
-    if (cJSON_IsBool(reset_item))
-    {
-
-        web_page_received_settings_data_snapshot.reset = cJSON_IsTrue(reset_item);
-    }
-    else
-    {
-
-        ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the reset item field");
-    }
-
-    // Only passes the received data if it has been checked
-    if (webpage_input_validity_check(web_page_received_settings_data_snapshot))
-    {
-        // Gets the data from the browser and puts it in the received_settings_data variable
-        if (xSemaphoreTake(sys_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        if (cJSON_IsNumber(delta_pos_item))
         {
-            received_settings_data.delta_pos = web_page_received_settings_data_snapshot.delta_pos;
-            received_settings_data.allowed_delta_plant_error = web_page_received_settings_data_snapshot.allowed_delta_plant_error;
-            received_settings_data.plant_time = web_page_received_settings_data_snapshot.plant_time;
-            received_settings_data.reset = web_page_received_settings_data_snapshot.reset;
+
+            web_page_received_settings_data_snapshot.delta_pos = (uint8_t)delta_pos_item->valueint;
         }
         else
         {
-            ESP_LOGW("web_app_handler", "Failed to take sys_data_mutex");
+
+            ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the delta_pos field");
+        }
+
+        if (cJSON_IsNumber(plantTime_item))
+        {
+
+            web_page_received_settings_data_snapshot.plant_time = (uint8_t)plantTime_item->valueint;
+        }
+        else
+        {
+
+            ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the plant time field");
+        }
+
+        if (cJSON_IsBool(reset_item))
+        {
+            ESP_LOGW("web_app_handler", "Here is the value of the reset item: %d",  web_page_received_settings_data_snapshot.reset);
+            web_page_received_settings_data_snapshot.reset = cJSON_IsTrue(reset_item);
+        }
+        else
+        {
+
+            ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the reset item field");
+        }
+
+        // Only passes the received data if it has been checked
+        if (webpage_input_validity_check(web_page_received_settings_data_snapshot))
+        {
+            // Gets the data from the browser and puts it in the received_settings_data variable
+            if (xSemaphoreTake(sys_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+            {
+
+                if (received_settings_data.delta_pos != web_page_received_settings_data_snapshot.delta_pos)
+                {
+                    received_settings_data.delta_pos = web_page_received_settings_data_snapshot.delta_pos;
+                }
+
+                if (received_settings_data.plant_time != web_page_received_settings_data_snapshot.plant_time)
+                {
+                    received_settings_data.plant_time = web_page_received_settings_data_snapshot.plant_time;
+                }
+
+                if (received_settings_data.reset != web_page_received_settings_data_snapshot.reset)
+                {
+                    received_settings_data.reset = web_page_received_settings_data_snapshot.reset;
+                }
+
+                xSemaphoreGive(sys_data_mutex);
+            }
+            else
+            {
+                ESP_LOGW("web_app_handler", "Failed to take sys_data_mutex");
+            }
         }
     }
 

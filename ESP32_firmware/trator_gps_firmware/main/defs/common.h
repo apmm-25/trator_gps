@@ -28,7 +28,12 @@
 // GENERAL CONSTANTS
 
 #define EARTH_RADIUS 6371000.0 // in meters
+
 #define MAX_BUFFER_SIZE 256
+
+#define HIGH_SIDE_MOVEMENT_ERROR 4 // in meters
+
+
 // WIFI ACCESS POINT CONSTANTS
 
 #define WIFI_SSID CONFIG_ESP_WIFI_SSID
@@ -52,7 +57,7 @@
 
 #define DEFAULT_DELTA_POS 2 // Default delta position
 #define DEFAULT_PLANT_TIME 2000 // Default plant time in miliseconds
-#define DEFAULT_PLANT_ERROR 0.1
+#define DEFAULT_PLANT_ERROR 0.20 // 10 cm 
 
 
 
@@ -73,6 +78,7 @@
 #define PUBX_MSG_TYPE_ID "PUBX"
 #define GNS_MSG_TYPE_ID "GNS"
 #define GGA_MSG_TYPE_ID "GGA"
+#define GLL_MSG_TYPE_ID "GLL"
 #define GPS_DATA_FIELD_NORTH_INDICATOR 'N'
 #define GPS_DATA_FIELD_SOUTH_INDICATOR 'S'
 #define GPS_DATA_FIELD_EAST_INDICATOR 'E'
@@ -83,7 +89,7 @@
 #define GPS_NULL_ISLAND_ALTITUDE 0.0
 #define GPS_DEFAULT_HDOP 0.0
 #define GPS_DEFAULT_SAT 0
-
+#define HDOP_MAX_LIMIT 3
 
 
 // Extern variables

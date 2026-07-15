@@ -37,7 +37,7 @@ typedef struct {
 
 typedef struct {
     bool first_sample;
-    uint16_t accumulated_distance;
+    double accumulated_distance;
     GPSData last_position;
     GPSData current_position;
 } gps_tracker_t;
@@ -64,22 +64,20 @@ typedef struct {
 typedef struct {
     bool reset;
     uint8_t delta_pos;
-    double allowed_delta_plant_error;
     uint64_t plant_time; // miliseconds
 
 } web_cmds_t; // Structure that holds incomming commands and changes to constants incoming from the web app
 
 typedef struct {
     uint8_t delta_pos;
-    double allowed_delta_plant_error;
     uint64_t plant_time;
-    
+    bool reset;
 } sys_data_t; // Structure that holds system data to be used across the project
 
 typedef struct {
     uint64_t numPlants;
     bool plant_mode_active;
-    uint8_t current_acc_distance;
+    double current_acc_distance;
 } plant_data_t;
 
 typedef struct {

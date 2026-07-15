@@ -16,14 +16,7 @@
 
 #include "common.h"
 
-
-
-
 bool zedf9p_data_receiver(nmea_raw_data_struct* data, bool* receiving);
-
-zedf9p_incoming_data_t PUBX_parser(nmea_raw_data_struct* data);
-
-zedf9p_incoming_data_t GNS_parser(nmea_raw_data_struct* data);
 
 bool nmea_checksum_comparison(const nmea_raw_data_struct* data);
 
@@ -31,9 +24,9 @@ gps_msg_t check_gps_type(char *data_buffer);
 
 zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t gps_msg_type);
 
-GPSData transform_into_decimal_degrees(zedf9p_incoming_data_t data);
+bool transform_into_decimal_degrees(zedf9p_incoming_data_t data, GPSData *ret);
 
-uint16_t calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos);
+double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool first_sample);
 
 #endif /* GPS_H */
 

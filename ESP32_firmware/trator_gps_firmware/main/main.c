@@ -40,6 +40,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t event_base,
     {
         wifi_event_ap_stadisconnected_t *event = (wifi_event_ap_stadisconnected_t *)event_data;
         ESP_LOGI("WIFI AP", " Station disconnected  AID=%d", event->aid);
+
     }
 }
 
@@ -86,6 +87,7 @@ void wifi_init_ap()
     ESP_ERROR_CHECK(esp_wifi_set_mode(WIFI_MODE_AP));
     ESP_ERROR_CHECK(esp_wifi_set_config(WIFI_IF_AP, &ap_config));
     ESP_ERROR_CHECK(esp_wifi_start());
+    //ESP_ERROR_CHECK(esp_netif_dhcps_start(ap_netif));
 
     ESP_LOGI("WIFI AP", "WiFi initialized in AP mode with SSID: %s, Password: %s", WIFI_SSID, WIFI_PASSWORD);
     ESP_LOGI("WIFI AP", "AP IP address: " IPSTR, IP2STR(&ip.ip));
@@ -118,6 +120,12 @@ void GPIO_init(void)
     io_config.pull_down_en = GPIO_PULLDOWN_DISABLE;
     io_config.pin_bit_mask = (1ULL << BUTTON_IN);
     gpio_config(&io_config);
+
+    io_config.mode = GPIO_MODE_OUTPUT;
+    io_config.pull_up_en = GPIO_PULLUP_DISABLE;
+    io_config.pull_down_en = GPIO_PULLDOWN_ENABLE;
+    io_config.pin_bit_mask = (1ULL << ACTIVATE_PLANTING);
+    gpio_config(&io_config);
 }
 
 void default_system_data_init(void)
@@ -126,11 +134,10 @@ void default_system_data_init(void)
 
     system_data.delta_pos = DEFAULT_DELTA_POS;
     system_data.plant_time = DEFAULT_PLANT_TIME;
-    system_data.allowed_delta_plant_error = DEFAULT_PLANT_ERROR;
-
+    system_data.reset = false;
+    
     received_settings_data.delta_pos = DEFAULT_DELTA_POS;
     received_settings_data.plant_time = DEFAULT_PLANT_TIME;
-    received_settings_data.allowed_delta_plant_error = DEFAULT_PLANT_ERROR;
     received_settings_data.reset = false;
 
     gps_data.altitude = GPS_NULL_ISLAND_ALTITUDE;
@@ -144,7 +151,6 @@ void default_system_data_init(void)
     plant_data.plant_mode_active = false;
 
     return;
-
 }
 
 void mutexes_init(void)
@@ -173,25 +179,28 @@ void mutexes_init(void)
     }
 
     web_data_mutex = xSemaphoreCreateMutex();
-    if (web_data_mutex == NULL) {
+    if (web_data_mutex == NULL)
+    {
 
         ESP_LOGE(TAG, "Failed to create web_data_mutex");
         return;
-    } 
-    else {
+    }
+    else
+    {
         ESP_LOGI(TAG, "web_data_mutex created");
     }
 
     plant_data_mutex = xSemaphoreCreateMutex();
-    if (plant_data_mutex == NULL) {
+    if (plant_data_mutex == NULL)
+    {
 
         ESP_LOGE(TAG, "Failed to create plant_data_mutex");
         return;
-    } 
-    else {
+    }
+    else
+    {
         ESP_LOGI(TAG, "plant_data_mutex created");
     }
-
 }
 
 void event_group_init(void)

@@ -222,11 +222,6 @@ static const char index_html[] = "<!DOCTYPE html>\n"
 "                </tr>\n"
 "\n"
 "                <tr>\n"
-"                    <td>Allowed Error in the distance (% of a meter) </td>\n"
-"                    <td><input id=\"allowedError\" type=\"number\" step=\"0.01\" value=\"0.50\"></td>\n"
-"                </tr>\n"
-"\n"
-"                <tr>\n"
 "                    <td>Plant Time (s)</td>\n"
 "                    <td><input id=\"plantTime\" type=\"number\" min=\"0\" max=\"255\" value=\"2\"></td>\n"
 "                </tr>\n"
@@ -290,7 +285,6 @@ static const char index_html[] = "<!DOCTYPE html>\n"
 "        function getConfiguration() {\n"
 "            return {\n"
 "                deltaPosition: Number(document.getElementById(\"deltaPosition\").value),\n"
-"                allowedError: Number(document.getElementById(\"allowedError\").value),\n"
 "                plantTime: Number(document.getElementById(\"plantTime\").value),\n"
 "                reset: document.getElementById(\"resetToggle\").checked\n"
 "            };\n"
@@ -341,7 +335,6 @@ static const char index_html[] = "<!DOCTYPE html>\n"
 "</body>\n"
 "\n"
 "</html>";
-
 
 
 
