@@ -31,7 +31,7 @@
 
 #define MAX_BUFFER_SIZE 256
 
-#define HIGH_SIDE_MOVEMENT_ERROR 4 // in meters
+#define HIGH_SIDE_MOVEMENT_ERROR 8 // in meters
 
 
 // WIFI ACCESS POINT CONSTANTS
@@ -57,7 +57,7 @@
 
 #define DEFAULT_DELTA_POS 2 // Default delta position
 #define DEFAULT_PLANT_TIME 2000 // Default plant time in miliseconds
-#define DEFAULT_PLANT_ERROR 0.20 // 10 cm 
+#define DEFAULT_PLANT_ERROR 0.4 // 10 cm 
 
 
 

@@ -30,10 +30,11 @@ void trigger_planting(state_machine_data_t *next_states, uint64_t *num_plantings
 {
     next_states->next_sub_state = WAIT_FOR_PLANT;
     // 1 second 3.3V pulse to activate the planting mechanism
-
+    set_led_wait_for_planting_mode(true);
     gpio_set_level(ACTIVATE_PLANTING, true);
     vTaskDelay(pdMS_TO_TICKS(1000));
     gpio_set_level(ACTIVATE_PLANTING, false);
+    set_led_wait_for_planting_mode(false);
     (*num_plantings)++;
     gps_tracker->accumulated_distance = gps_tracker->accumulated_distance - sys_data_copy.delta_pos;
 }
@@ -41,17 +42,42 @@ void trigger_planting(state_machine_data_t *next_states, uint64_t *num_plantings
 void wait_for_plant_subcase(state_machine_data_t *next_states)
 {
     ESP_LOGI("STATE MACHINE LOOP", "WAITING FOR PLANT");
-    set_led_wait_for_planting_mode(true);
-    // wait for 2 seconds, consider the planting done
-    vTaskDelay(pdMS_TO_TICKS(2000));
+    //set_led_wait_for_planting_mode(true);
     next_states->next_sub_state = NORMAL_OPERATION;
 }
 
-bool first_sample_check(gps_tracker_t gps_tracker)
+bool first_sample_check(gps_tracker_t *gps_tracker)
 {
-    return fabs(gps_tracker.last_position.latitude) < 1e-9 &&
-           fabs(gps_tracker.last_position.longitude) < 1e-9 &&
-           fabs(gps_tracker.last_position.altitude) < 1e-9;
+    if (fabs(gps_tracker->anchor_position.latitude) < 1e-9 &&
+        fabs(gps_tracker->anchor_position.longitude) < 1e-9 &&
+        fabs(gps_tracker->anchor_position.altitude) < 1e-9)
+    {
+        if (fabs(gps_tracker->current_position.latitude) < 1e-9 &&
+            fabs(gps_tracker->current_position.longitude) < 1e-9 &&
+            fabs(gps_tracker->current_position.altitude) < 1e-9)
+        {
+            return true;
+        }
+        else if (gps_tracker->current_position.HDOP < HDOP_MAX_LIMIT)
+        {
+
+            gps_tracker->anchor_position.altitude = gps_tracker->current_position.altitude;
+            gps_tracker->anchor_position.longitude = gps_tracker->current_position.longitude;
+            gps_tracker->anchor_position.latitude = gps_tracker->current_position.latitude;
+            gps_tracker->anchor_position.HDOP = gps_tracker->current_position.HDOP;
+            return true;
+        }
+        else
+        {
+
+            return true;
+        }
+    }
+    else
+    {
+
+        return false;
+    }
 }
 
 void normal_operation_subcase(state_machine_data_t *next_states, gps_tracker_t *gps_tracker, sys_data_t sys_data_copy, uint64_t *num_plantings)
@@ -59,20 +85,24 @@ void normal_operation_subcase(state_machine_data_t *next_states, gps_tracker_t *
     set_led_wait_for_planting_mode(false);
     double local_delta_calculated = 0;
     // Check if it is the first sample, sets the variable
-    gps_tracker->first_sample = first_sample_check(*gps_tracker);
+    gps_tracker->first_sample = first_sample_check(gps_tracker);
 
-    local_delta_calculated = calculate_accumulated_distance(gps_tracker->last_position, gps_tracker->current_position, gps_tracker->first_sample);
+    local_delta_calculated = calculate_accumulated_distance(gps_tracker->anchor_position, gps_tracker->current_position, gps_tracker->first_sample);
     ESP_LOGI("State Machine Loop", "Current delta calculated: %.9f", local_delta_calculated);
 
-    if (local_delta_calculated > DEFAULT_PLANT_ERROR && local_delta_calculated <= HIGH_SIDE_MOVEMENT_ERROR)
+    if (local_delta_calculated > DEFAULT_PLANT_ERROR && local_delta_calculated < HIGH_SIDE_MOVEMENT_ERROR)
     {
         gps_tracker->accumulated_distance = gps_tracker->accumulated_distance + local_delta_calculated;
+        gps_tracker->anchor_position.latitude = gps_tracker->current_position.latitude;
+        gps_tracker->anchor_position.longitude = gps_tracker->current_position.longitude;
+        gps_tracker->anchor_position.altitude = gps_tracker->current_position.altitude;
+
         ESP_LOGI("State Machine Loop", "Accumulated distance is %f // Delta is %f //", gps_tracker->accumulated_distance, sys_data_copy.delta_pos);
 
         // gps_tracker->accumulated_distance
 
         if (gps_tracker->accumulated_distance >= (double)sys_data_copy.delta_pos)
-        {   
+        {
             ESP_LOGI("State Machine Loop", "Dei trigger ao plant, acc distance was %f", gps_tracker->accumulated_distance);
             trigger_planting(next_states, num_plantings, gps_tracker, sys_data_copy);
         }
@@ -80,7 +110,12 @@ void normal_operation_subcase(state_machine_data_t *next_states, gps_tracker_t *
         {
             next_states->next_sub_state = NORMAL_OPERATION;
         }
-    }
+    } else if (local_delta_calculated >= HIGH_SIDE_MOVEMENT_ERROR)
+    {
+        // Ver o que adicionar aqui
+        ESP_LOGW("State Machine Loop", "Probably HIGH SIDE Noise, value detected: %f, recheck the error recheck the high side error tolerance ", local_delta_calculated);
+        
+    } 
     else
     {
 
@@ -93,7 +128,7 @@ void state_machine_loop(uint64_t *num_plantings, state_machine_data_t *next_stat
     // For example, check the current state and perform actions based on the state
     // Transition to other states based on events or conditions
 
-    //ESP_LOGI("State Machine Loop", "state inside the switch: %d", next_states->next_state);
+    // ESP_LOGI("State Machine Loop", "state inside the switch: %d", next_states->next_state);
     switch (next_states->next_state)
     {
     case PLANT_MODE:
@@ -108,8 +143,7 @@ void state_machine_loop(uint64_t *num_plantings, state_machine_data_t *next_stat
 
         case NORMAL_OPERATION:
             // configurar o calcular da distancia acumulada guardar na variável geral de gps_tracker
-            // se tiver no valor pretendido de distancia acumulada proximo sub_state é WAIT_FOR_PLANT
-            ESP_LOGI("State Machine Loop", "Normal Operation");
+            // ESP_LOGI("State Machine Loop", "Normal Operation");
             normal_operation_subcase(next_states, gps_tracker, sys_data_copy, num_plantings);
             break;
 

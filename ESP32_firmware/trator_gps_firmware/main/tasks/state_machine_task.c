@@ -50,7 +50,7 @@ void state_machine_task(void *pvParameters)
     gps_tracker_t gps_tracker;
     gps_tracker.first_sample = true;
     gps_tracker.accumulated_distance = 0;
-    gps_tracker.last_position = curr_pos_gps_data;
+    gps_tracker.anchor_position = curr_pos_gps_data;
     gps_tracker.current_position = curr_pos_gps_data;
 
 
@@ -139,12 +139,14 @@ void state_machine_task(void *pvParameters)
             curr_state.next_sub_state = IDLE_SUBSTATE;
         }
         // call next state
-        gps_tracker.last_position = gps_tracker.current_position;
+
+        // With the anchor method, this last position no longer exists, its the anchor point, and its only updated by the difference regarding the current
+        //gps_tracker.last_position = gps_tracker.current_position;
         gps_tracker.current_position = curr_pos_gps_data;
         state_machine_loop(&num_plantings, &curr_state, system_data_snapshot, &gps_tracker);
 
         // ESP_LOGI(TAG, "State machine task running");
 
-        vTaskDelay(pdMS_TO_TICKS(100)); // Delay for 1000 ms to avoid busy waiting
+        vTaskDelay(pdMS_TO_TICKS(200)); // Delay for 1000 ms to avoid busy waiting
     }
 }

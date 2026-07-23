@@ -38,7 +38,7 @@ typedef struct {
 typedef struct {
     bool first_sample;
     double accumulated_distance;
-    GPSData last_position;
+    GPSData anchor_position;
     GPSData current_position;
 } gps_tracker_t;
 

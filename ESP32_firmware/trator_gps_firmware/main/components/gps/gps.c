@@ -398,7 +398,7 @@ gps_msg_t check_gps_type(char *data_buffer)
 
 bool gps_data_validity(GPSData ret_data)
 {
-    if (ret_data.HDOP > HDOP_MAX_LIMIT)
+    if (ret_data.HDOP >= HDOP_MAX_LIMIT)
     {
         return false;
     }
@@ -452,11 +452,12 @@ bool transform_into_decimal_degrees(zedf9p_incoming_data_t data, GPSData *ret)
     }
 }
 
+
 double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool first_sample)
 {
-    //ESP_LOGI("ACC distance", "Last Pos LAT: %f // LON: %f // ALT: %f", last_pos.latitude, last_pos.longitude, last_pos.altitude);
-    //ESP_LOGI("ACC distance", "Current Pos LAT: %f // LON: %f // ALT: %f", curr_pos.latitude, curr_pos.longitude, curr_pos.altitude);
-    //ESP_LOGI("ACC distance", "First Sample Value is: %d", first_sample);
+    ESP_LOGI("ACC distance", "ANCHOR Pos LAT: %f // LON: %f // ALT: %f", last_pos.latitude, last_pos.longitude, last_pos.altitude);
+    ESP_LOGI("ACC distance", "CURRENT Pos LAT: %f // LON: %f // ALT: %f", curr_pos.latitude, curr_pos.longitude, curr_pos.altitude);
+    // ESP_LOGI("ACC distance", "First Sample Value is: %d", first_sample);
 
     if (first_sample)
     {
@@ -473,11 +474,19 @@ double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool f
         return 0.0;
     }
 
-    double lat_diff = curr_pos.latitude - last_pos.latitude;
-    double lon_diff = curr_pos.longitude - last_pos.longitude;
-    double alt_diff = curr_pos.altitude - last_pos.altitude;
+    double lat1r = (last_pos.latitude * M_PI) / 180.0;
+    double lat2r = (curr_pos.latitude * M_PI) / 180.0;
 
-    
+    double lon1r = (last_pos.longitude * M_PI) / 180.0;
+    double lon2r = (curr_pos.longitude * M_PI) / 180.0;
+
+    double alt1r = (last_pos.altitude);
+    double alt2r = (curr_pos.altitude);
+
+    double lat_diff = lat2r - lat1r;
+    double lon_diff = lon2r - lon1r;
+    double alt_diff = alt2r - alt1r;
+
     ESP_LOGI("ACC distance", "Delta LAT: %f // LON: %f // ALT: %f", lat_diff, lon_diff, alt_diff);
 
     if (fabs(lat_diff) < 1e-9 && fabs(lon_diff) < 1e-9 && fabs(alt_diff) < 1e-9)
@@ -485,14 +494,20 @@ double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool f
         return 0.0;
     }
 
-    double lat1r = last_pos.latitude * M_PI / 180.0;
-    double lat2r = curr_pos.latitude * M_PI / 180.0;
-    double dlat = lat_diff * M_PI / 180.0;
-    double dlon = lon_diff * M_PI / 180.0;
+    // double dlat = lat_diff * M_PI / 180.0;
+    // double dlon = lon_diff * M_PI / 180.0;
 
-    double dx = dlon * cos((lat1r + lat2r) * 0.5) * EARTH_RADIUS;
-    double dy = dlat * EARTH_RADIUS;
+    /*
+        // 3. Compute differences
+        let avg_lat = (lat1_rad + lat2_rad) / 2;
+        let delta_x = (lon2_rad - lon1_rad) * Math.cos(avg_lat) * R;
+        let delta_y = (lat2_rad - lat1_rad) * R;
+
+    */
+    double avg_lat = (lat1r + lat2r)/ 2.0;
+    double dx = lon_diff * cos(avg_lat) * EARTH_RADIUS;
+    double dy = lat_diff * EARTH_RADIUS;
     double dz = alt_diff;
 
-    return sqrt(dx * dx + dy * dy);
+    return sqrt((dx * dx) + (dy * dy));
 }
