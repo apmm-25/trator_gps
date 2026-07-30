@@ -187,6 +187,11 @@
                     <td><input class="readonly" id="satellites" type="text" value="0" readonly></td>
                 </tr>
 
+                <tr>
+                    <td>RTK Fix</td>
+                    <td><input class="readonly" id="RTKFix" type="text" value="Undefined" readonly></td>
+                </tr>
+
             </table>
         </div>
 
@@ -252,12 +257,51 @@
                 led.classList.add("off");
             }
         }
-        function setGPS(lat, lon, alt, hdop, sats) {
+        function setGPS(lat, lon, alt, hdop, sats, rtk_fix) {
             document.getElementById("latitude").value = lat.toFixed(6);
             document.getElementById("longitude").value = lon.toFixed(6);
             document.getElementById("altitude").value = alt.toFixed(2);
             document.getElementById("hdop").value = hdop.toFixed(2);
             document.getElementById("satellites").value = sats;
+
+            const fixValue = typeof rtk_fix === "number" ? rtk_fix : -1;
+            const rtkField = document.getElementById("RTKFix");
+
+            switch (fixValue) {
+                case -1:
+                    rtkField.value = "Undefined";
+                    break;
+                case 0:
+                    rtkField.value = "No Fix";
+                    break;
+                case 1:
+                    rtkField.value = "RTK Float";
+                    break;
+                case 2:
+                    rtkField.value = "RTK Fixed";
+                    break;
+                case 3:
+                    rtkField.value = "Autonomous";
+                    break;
+                case 4:
+                    rtkField.value = "Differential";
+                    break;
+                case 5:
+                    rtkField.value = "Dead Reckoning";
+                    break;
+                case 6:
+                    rtkField.value = "Precision";
+                    break;
+                case 7:
+                    rtkField.value = "Manual";
+                    break;
+                case 8:
+                    rtkField.value = "Sim";
+                    break;
+                default:
+                    rtkField.value = "Unknown";
+                    break;
+            }
         }
 
         // Read configuration values
@@ -277,7 +321,7 @@
                 }
 
                 const data = await response.json();
-                setGPS(data.gps_data.lat, data.gps_data.lon, data.gps_data.alt, data.gps_data.hdop, data.gps_data.sat);
+                setGPS(data.gps_data.lat, data.gps_data.lon, data.gps_data.alt, data.gps_data.hdop, data.gps_data.sat, data.gps_data.rtk_fix);
                 setActive(data.plant_mode_active);
                 setPlantingsDistanceAndTotal(data.totalPlantings, data.acc_distance);
 

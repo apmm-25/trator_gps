@@ -67,6 +67,8 @@ static esp_err_t get_handler_outputs(httpd_req_t *req)
     cJSON_AddNumberToObject(gps_data_json, "alt", web_data_to_send_local.web_gps_data.altitude);
     cJSON_AddNumberToObject(gps_data_json, "hdop", web_data_to_send_local.web_gps_data.HDOP);
     cJSON_AddNumberToObject(gps_data_json, "sat", web_data_to_send_local.web_gps_data.satellite_number);
+    cJSON_AddNumberToObject(gps_data_json, "rtk_fix", web_data_to_send_local.web_gps_data.RTK_fix);
+
 
     // Attach GPS object to root
     cJSON_AddItemToObject(root, "gps_data", gps_data_json);

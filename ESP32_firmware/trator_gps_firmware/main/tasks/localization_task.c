@@ -55,6 +55,7 @@ void nmea_parser(nmea_raw_data_struct *raw_data)
         if (gps_msg_type != UNDEFINED)
         {
             incoming_data = nmea_gps_type_loop(raw_data, gps_msg_type);
+            
             //debug_function_received(&incoming_data);
             if (transform_into_decimal_degrees(incoming_data, &gps_data_local_task))
             {
@@ -66,6 +67,7 @@ void nmea_parser(nmea_raw_data_struct *raw_data)
                     gps_data.longitude = gps_data_local_task.longitude;
                     gps_data.HDOP = gps_data_local_task.HDOP;
                     gps_data.satellite_number = gps_data_local_task.satellite_number;
+                    gps_data.RTK_fix = gps_data_local_task.RTK_fix;
                     xSemaphoreGive(gps_data_mutex);
                 }
             }

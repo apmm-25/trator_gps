@@ -121,6 +121,7 @@ void state_machine_task(void *pvParameters)
             curr_pos_gps_data.longitude = gps_data.longitude;
             curr_pos_gps_data.HDOP = gps_data.HDOP;
             curr_pos_gps_data.satellite_number = gps_data.satellite_number;
+            curr_pos_gps_data.RTK_fix = gps_data.RTK_fix;
             xSemaphoreGive(gps_data_mutex);
         }
 

@@ -50,6 +50,7 @@ void webpage_task(void* pvParameters){
             web_data_to_send_snapshot.web_gps_data.longitude = gps_data.longitude;
             web_data_to_send_snapshot.web_gps_data.HDOP = gps_data.HDOP;
             web_data_to_send_snapshot.web_gps_data.satellite_number = gps_data.satellite_number;
+            web_data_to_send_snapshot.web_gps_data.RTK_fix = gps_data.RTK_fix;
             xSemaphoreGive(gps_data_mutex);
         }
 

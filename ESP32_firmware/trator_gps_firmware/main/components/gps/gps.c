@@ -174,6 +174,77 @@ uint8_t nmea_int_parser(char *field_data)
     return ret;
 }
 
+rtk_fix_t gns_rtk_fix_parser(char *field_data)
+{
+
+    if (strchr(field_data, 'R'))
+    {
+        return RTK_FIXED;
+    }
+    else if (strchr(field_data, 'F'))
+    {
+        return RTK_FLOAT;
+    }
+    else if (strchr(field_data, 'P'))
+    {
+        return PRECISION;
+    }
+    else if (strchr(field_data, 'D'))
+    {
+        return DIFFERENTIAL;
+    }
+    else if (strchr(field_data, 'A'))
+    {
+        return AUTONOMOUS;
+    }
+    else
+    {
+
+        return NO_FIX;
+    }
+}
+
+
+rtk_fix_t gga_rtk_fix_parser(uint8_t gga_type)
+{
+    rtk_fix_t fix_type_ret;
+
+    switch (gga_type)
+    {
+
+    case GGA_INVALID_FIX:
+        fix_type_ret = NO_FIX;
+        break;
+
+    case GGA_AUTONOMOUS:
+        fix_type_ret = AUTONOMOUS;
+        break;
+
+    case GGA_DIFFERENTIAL_FIX:
+        fix_type_ret = DIFFERENTIAL;
+        break;
+
+    case GGA_RTK_FIX:
+        fix_type_ret = SIM;
+        break;
+
+    case GGA_RTK_FLOAT_FIX:
+        fix_type_ret = NO_FIX;
+        break;
+
+    case GGA_DEAD_RECKONING:
+        fix_type_ret = DEAD_RECKONING;
+        break;
+        
+    default:
+        fix_type_ret = UNDEFINED;
+        break;
+    }
+
+    return fix_type_ret;
+}
+
+
 // TO DO: REFACTOR TO MAKE IT MORE PRACTICAL TO ADD NEW SWITCHES FOR NEW MESSAGES
 //        PUT THE SWITCHES INSIDE INDIVIDUAL FUNCTIONS
 zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t gps_msg_type)
@@ -252,8 +323,13 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                 case GNS_ALT:
                     ret.altitude = nmea_double_parser(sub_buffer);
                     break;
+
                 case GNS_HDOP:
                     ret.HDOP = nmea_double_parser(sub_buffer);
+                    break;
+                
+                case GNS_POSMODE:
+                    ret.RTK_fix = gns_rtk_fix_parser(sub_buffer);
                     break;
 
                 default:
@@ -262,7 +338,8 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                 }
             }
             else if (sub_buffer_index > 0 && gps_msg_type == PUBX)
-            {
+            {   
+
                 // Implement PUBX parsing logic here
                 switch (msg_field_index)
                 {
@@ -326,6 +403,8 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
                 case GGA_HDOP:
                     ret.HDOP = nmea_double_parser(sub_buffer);
                     break;
+                case GGA_QUALITY:
+                    ret.RTK_fix = gga_rtk_fix_parser(nmea_int_parser(sub_buffer));
                 default:
                     break;
                 }
@@ -356,6 +435,12 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
             }
         }
     }
+
+    if (gps_msg_type == PUBX || gps_msg_type == GLL)
+    {
+        ret.RTK_fix = UNDEFINED;
+    } 
+    
     return ret;
 }
 
@@ -417,6 +502,7 @@ bool transform_into_decimal_degrees(zedf9p_incoming_data_t data, GPSData *ret)
 
     ret->HDOP = data.HDOP;
     ret->satellite_number = data.satellite_number;
+    ret->RTK_fix = data.RTK_fix;
 
     double lat_degrees = floor((data.latitude / 100));
     double lon_degrees = floor((data.longitude / 100));
@@ -452,12 +538,10 @@ bool transform_into_decimal_degrees(zedf9p_incoming_data_t data, GPSData *ret)
     }
 }
 
-
 double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool first_sample)
 {
     ESP_LOGI("ACC distance", "ANCHOR Pos LAT: %f // LON: %f // ALT: %f", last_pos.latitude, last_pos.longitude, last_pos.altitude);
     ESP_LOGI("ACC distance", "CURRENT Pos LAT: %f // LON: %f // ALT: %f", curr_pos.latitude, curr_pos.longitude, curr_pos.altitude);
-    // ESP_LOGI("ACC distance", "First Sample Value is: %d", first_sample);
 
     if (first_sample)
     {
@@ -494,17 +578,7 @@ double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool f
         return 0.0;
     }
 
-    // double dlat = lat_diff * M_PI / 180.0;
-    // double dlon = lon_diff * M_PI / 180.0;
-
-    /*
-        // 3. Compute differences
-        let avg_lat = (lat1_rad + lat2_rad) / 2;
-        let delta_x = (lon2_rad - lon1_rad) * Math.cos(avg_lat) * R;
-        let delta_y = (lat2_rad - lat1_rad) * R;
-
-    */
-    double avg_lat = (lat1r + lat2r)/ 2.0;
+    double avg_lat = (lat1r + lat2r) / 2.0;
     double dx = lon_diff * cos(avg_lat) * EARTH_RADIUS;
     double dy = lat_diff * EARTH_RADIUS;
     double dz = alt_diff;

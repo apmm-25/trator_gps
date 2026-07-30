@@ -18,13 +18,15 @@
 
 #include "libs.h"
 
+
 typedef struct {
     double latitude;
     double longitude;
     double altitude;
     double HDOP;
     uint16_t satellite_number;
-} GPSData; // possivelmente inutil
+    rtk_fix_t RTK_fix;
+} GPSData;
 
 
 typedef struct {
@@ -50,6 +52,7 @@ typedef struct {
     char EW;
     char NS;
     double timestamp;
+    rtk_fix_t RTK_fix;
     uint16_t satellite_number;
     uint8_t checksum;
 } zedf9p_incoming_data_t;
@@ -95,5 +98,7 @@ typedef struct
     button_states_t current_state;
     int64_t last_pressed_timestamp;
 } button_t; // Tracks the button and the system state
+
+
 
 #endif /* DAT_H */

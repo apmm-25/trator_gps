@@ -6,9 +6,8 @@
 
     24/6/2026 - Initial creation of the file
     1/7/2026 - Extended to parse PUBX messages
-    9/7/2926 - Extended to parse GGA messages
-    
-
+    9/7/2026 - Extended to parse GGA messages
+    29/7/2026 - Added RTK Fix type
 
 */
 
@@ -131,5 +130,30 @@ typedef enum {
     GLL_POSMODE = 7,
 } gll_data_fields_t;
 
+
+typedef enum {
+    GGA_UNDEFINED_FIX = -1,
+    GGA_INVALID_FIX = 0,
+    GGA_AUTONOMOUS = 1,
+    GGA_DIFFERENTIAL_FIX = 2,
+    GGA_NOT_APPLICABLE = 3,
+    GGA_RTK_FIX = 4,
+    GGA_RTK_FLOAT_FIX = 5,
+    GGA_DEAD_RECKONING = 6,
+} gga_fix_quality_t;
+
+
+typedef enum {
+    UNDEFINED_FIX = -1,
+    NO_FIX = 0,
+    RTK_FLOAT = 1,
+    RTK_FIXED = 2,
+    AUTONOMOUS = 3,
+    DIFFERENTIAL = 4,
+    DEAD_RECKONING = 5,
+    PRECISION = 6, 
+    MANUAL = 7,
+    SIM = 8,
+} rtk_fix_t;
 
 #endif /* TYPES_H */
