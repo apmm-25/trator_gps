@@ -126,6 +126,8 @@ void GPIO_init(void)
     io_config.pull_down_en = GPIO_PULLDOWN_ENABLE;
     io_config.pin_bit_mask = (1ULL << ACTIVATE_PLANTING);
     gpio_config(&io_config);
+
+
 }
 
 void default_system_data_init(void)

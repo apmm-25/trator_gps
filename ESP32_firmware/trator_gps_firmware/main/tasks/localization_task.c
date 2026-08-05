@@ -43,6 +43,7 @@ void nmea_parser(nmea_raw_data_struct *raw_data)
     gps_msg_t gps_msg_type;
     zedf9p_incoming_data_t incoming_data;
     GPSData gps_data_local_task = {0};
+    gps_data_local_task.RTK_fix = UNDEFINED_FIX;
 
     //ESP_LOGI("NMEA_PARSER", "Doing checksum comparison for string: %s", raw_data->rx_buffer);
     if (nmea_checksum_comparison(raw_data))

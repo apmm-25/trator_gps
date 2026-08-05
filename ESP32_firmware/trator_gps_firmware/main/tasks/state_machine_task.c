@@ -139,14 +139,9 @@ void state_machine_task(void *pvParameters)
             curr_state.next_state = IDLE;
             curr_state.next_sub_state = IDLE_SUBSTATE;
         }
-        // call next state
-
-        // With the anchor method, this last position no longer exists, its the anchor point, and its only updated by the difference regarding the current
-        //gps_tracker.last_position = gps_tracker.current_position;
+        
         gps_tracker.current_position = curr_pos_gps_data;
         state_machine_loop(&num_plantings, &curr_state, system_data_snapshot, &gps_tracker);
-
-        // ESP_LOGI(TAG, "State machine task running");
 
         vTaskDelay(pdMS_TO_TICKS(200)); // Delay for 1000 ms to avoid busy waiting
     }

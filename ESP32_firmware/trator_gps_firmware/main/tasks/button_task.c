@@ -64,6 +64,8 @@ void button_task(void *pvParameters)
             xEventGroupClearBits(system_events, EVENT_PLANT_MODE);
         }
 
+        
+
         vTaskDelay(pdMS_TO_TICKS(100));
     }
 }

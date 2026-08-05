@@ -10,6 +10,7 @@
 
 
 */
+#include "common.h"
 #include "gps.h"
 
 double char_to_number_extraction(char *sub_string)
@@ -177,23 +178,23 @@ uint8_t nmea_int_parser(char *field_data)
 rtk_fix_t gns_rtk_fix_parser(char *field_data)
 {
 
-    if (strchr(field_data, 'R'))
+    if (strchr(field_data, GNS_MSG_RTK_FIXED_TYPE))
     {
         return RTK_FIXED;
     }
-    else if (strchr(field_data, 'F'))
+    else if (strchr(field_data, GNS_MSG_RTK_FLOAT_TYPE))
     {
         return RTK_FLOAT;
     }
-    else if (strchr(field_data, 'P'))
+    else if (strchr(field_data, GNS_MSG_PRECISION_TYPE))
     {
         return PRECISION;
     }
-    else if (strchr(field_data, 'D'))
+    else if (strchr(field_data, GNS_MSG_DIFFERENTIAL_TYPE))
     {
         return DIFFERENTIAL;
     }
-    else if (strchr(field_data, 'A'))
+    else if (strchr(field_data, GNS_MSG_AUTONOMOUS_TYPE))
     {
         return AUTONOMOUS;
     }
