@@ -30,7 +30,7 @@ The firmware implements the basic project structure, a task-oriented design, and
 - Final connection and test with the machine
 
 ## Repository Structure (high-level)
-
+- `trator_gps_firmware/` -  top level entry folder
 - `CMakeLists.txt` — top-level CMake config for ESP-IDF
 - `sdkconfig`, `sdkconfig.ci`, `sdkconfig.old` — build configuration files
 - `build/` — build artifacts (auto-generated)
