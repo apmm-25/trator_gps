@@ -49,6 +49,12 @@ typedef enum {
     UNPRESSED = 1,
 } button_states_t;
 
+
+typedef enum {
+    OFF = 0,
+    ON = 1,
+} yellow_led_states_t;
+
 typedef enum {
     UNDEFINED = -1,
     GNS = 0,

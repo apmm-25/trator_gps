@@ -59,6 +59,7 @@ static esp_err_t get_handler_outputs(httpd_req_t *req)
 
     cJSON_AddBoolToObject(root, "plant_mode_active", web_data_to_send_local.web_plant_data.plant_mode_active);
     cJSON_AddNumberToObject(root, "totalPlantings", web_data_to_send_local.web_plant_data.numPlants);
+    cJSON_AddNumberToObject(root, "totalPlantingsCropRow", web_data_to_send_local.web_plant_data.numPlantsCropRow);
     cJSON_AddNumberToObject(root, "acc_distance", web_data_to_send_local.web_plant_data.current_acc_distance);
 
     cJSON *gps_data_json = cJSON_CreateObject();
@@ -102,10 +103,7 @@ static esp_err_t get_handler_outputs(httpd_req_t *req)
 
 static esp_err_t post_handler_inputs(httpd_req_t *req)
 {
-    /*
-        TO DO: Retrieve data from json buffer parsed into the structure
-    */
-
+    
     int data_len = req->content_len + 1;
 
     char web_data_buffer[data_len];
@@ -131,9 +129,10 @@ static esp_err_t post_handler_inputs(httpd_req_t *req)
         cJSON *plantTime_item = cJSON_GetObjectItem(received_root, "plantTime");
         cJSON *reset_item = cJSON_GetObjectItem(received_root, "reset");
 
-        if (cJSON_IsNumber(delta_pos_item))
+        if (cJSON_IsNumber(delta_pos_item) &&
+            delta_pos_item->valuedouble >= 1 &&
+            delta_pos_item->valuedouble <= UINT8_MAX)
         {
-
             web_page_received_settings_data_snapshot.delta_pos = (uint8_t)delta_pos_item->valueint;
         }
         else
@@ -142,10 +141,11 @@ static esp_err_t post_handler_inputs(httpd_req_t *req)
             ESP_LOGW("web_app_handler", "Retuning unexpected value from the browser in the delta_pos field");
         }
 
-        if (cJSON_IsNumber(plantTime_item))
+        if (cJSON_IsNumber(plantTime_item) &&
+            plantTime_item->valuedouble >= 1 &&
+            plantTime_item->valuedouble <= 4000)
         {
-
-            web_page_received_settings_data_snapshot.plant_time = (uint8_t)plantTime_item->valueint;
+            web_page_received_settings_data_snapshot.plant_time = (uint64_t)plantTime_item->valueint;
         }
         else
         {

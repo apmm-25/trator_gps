@@ -39,6 +39,7 @@ void state_machine_task(void *pvParameters)
     // DEFAULT SETTINGS
     ESP_LOGI(TAG, "State machine task started");
     uint64_t num_plantings = 0;
+    uint64_t num_plantings_crop_row = 0;
     GPSData curr_pos_gps_data;
     curr_pos_gps_data.altitude = 0;
     curr_pos_gps_data.latitude = 0;
@@ -91,12 +92,48 @@ void state_machine_task(void *pvParameters)
             esp_restart();
         }
         
+        if (xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
+        {
+            // ESP_LOGI(TAG, "Test getting mutex on the gps_data");
+            curr_pos_gps_data.altitude = gps_data.altitude;
+            curr_pos_gps_data.latitude = gps_data.latitude;
+            curr_pos_gps_data.longitude = gps_data.longitude;
+            curr_pos_gps_data.HDOP = gps_data.HDOP;
+            curr_pos_gps_data.satellite_number = gps_data.satellite_number;
+            curr_pos_gps_data.RTK_fix = gps_data.RTK_fix;
+            xSemaphoreGive(gps_data_mutex);
+        }
+
+        ESP_LOGI(TAG, "Received current GPS Position: Latitude: %.6f, Longitude: %.6f, Altitude: %.2f", curr_pos_gps_data.latitude, curr_pos_gps_data.longitude, curr_pos_gps_data.altitude);
+        // read the system_state
+        
+        EventBits_t bits = xEventGroupGetBits(system_events);
+        if (bits & EVENT_PLANT_MODE)
+        {
+            curr_state.next_state = PLANT_MODE;
+            curr_state.next_sub_state = NORMAL_OPERATION;
+            
+        }
+        else
+        {
+            curr_state.next_state = IDLE;
+            curr_state.next_sub_state = IDLE_SUBSTATE;
+        }
+        
+
+        // We need to re-do this, the plant and gps_data mutexes need to be utilized after the loop, the red led state needs to reset the accumulated distance
+        gps_tracker.current_position = curr_pos_gps_data;
+        state_machine_loop(&num_plantings, &num_plantings_crop_row, &curr_state, system_data_snapshot, &gps_tracker);
+
         // ESP_LOGI(TAG, "Received the settings: delta: %d, plant time %d, allowed error: %.2f", system_data_snapshot.delta_pos, );
         //ESP_LOGI(TAG, " state machine task side received system_data: \n delta_pos: %d, \n plant_time: %d", system_data_snapshot.delta_pos, system_data_snapshot.plant_time);
         ESP_LOGI(TAG, "STATE MACHINE SIDE ACC DISTANCE: %.4f", gps_tracker.accumulated_distance);
+        
+        // ALTEREI ISTO -> falta adicionar a logica para o numPlants ficar geral e o numPlantsCropRow ficar local, resetar o numPlantsCropRow quando entrar no IDLE
         if (xSemaphoreTake(plant_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
             plant_data.current_acc_distance = gps_tracker.accumulated_distance;
+            plant_data.numPlantsCropRow = num_plantings_crop_row;
             plant_data.numPlants = num_plantings;
             if (curr_state.next_state == PLANT_MODE)
             {
@@ -112,37 +149,7 @@ void state_machine_task(void *pvParameters)
         {
             ESP_LOGW(TAG, "Failed to take plant_data_mutex");
         }
-
-        if (xSemaphoreTake(gps_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
-        {
-            // ESP_LOGI(TAG, "Test getting mutex on the gps_data");
-            curr_pos_gps_data.altitude = gps_data.altitude;
-            curr_pos_gps_data.latitude = gps_data.latitude;
-            curr_pos_gps_data.longitude = gps_data.longitude;
-            curr_pos_gps_data.HDOP = gps_data.HDOP;
-            curr_pos_gps_data.satellite_number = gps_data.satellite_number;
-            curr_pos_gps_data.RTK_fix = gps_data.RTK_fix;
-            xSemaphoreGive(gps_data_mutex);
-        }
-
-        ESP_LOGI(TAG, "Received current GPS Position: Latitude: %.6f, Longitude: %.6f, Altitude: %.2f", curr_pos_gps_data.latitude, curr_pos_gps_data.longitude, curr_pos_gps_data.altitude);
-        // read the system_state
-        EventBits_t bits = xEventGroupGetBits(system_events);
-        if (bits & EVENT_PLANT_MODE)
-        {
-            curr_state.next_state = PLANT_MODE;
-            curr_state.next_sub_state = NORMAL_OPERATION;
-            
-        }
-        else
-        {
-            curr_state.next_state = IDLE;
-            curr_state.next_sub_state = IDLE_SUBSTATE;
-        }
         
-        gps_tracker.current_position = curr_pos_gps_data;
-        state_machine_loop(&num_plantings, &curr_state, system_data_snapshot, &gps_tracker);
-
         vTaskDelay(pdMS_TO_TICKS(200)); // Delay for 1000 ms to avoid busy waiting
     }
 }

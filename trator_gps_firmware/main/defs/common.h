@@ -55,16 +55,16 @@
 #define GPS_UART_RX GPIO_NUM_16
 
 #define DEFAULT_DELTA_POS 2 // Default delta position
-#define DEFAULT_PLANT_TIME 2000 // Default plant time in miliseconds
+#define DEFAULT_PLANT_TIME 50 // Default plant time in miliseconds
 #define DEFAULT_PLANT_ERROR 0.4 // 10 cm 
 
-
+#define YELLOW_LED_BLINK_TIME 1000 // 1 second blink time for the yellow led
 
 #define EVENT_PLANT_MODE (1 << 0)
-#define EVENT_NEW_GPS_DATA (1 << 1)
+#define EVENT_YELLOW_LED (1 << 1)
 #define EVENT_NEW_SETTINGS_DATA (1 << 2)
 #define EVENT_REBOOT (1 << 3)
-#define BUTTON_PRESS_TIME 2000 // 2 miliseconds click
+#define BUTTON_PRESS_TIME 2000 // 2 seconds click
 
 
 // GPS constants

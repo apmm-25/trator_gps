@@ -150,6 +150,11 @@
                 </tr>
 
                 <tr>
+                    <td>Number of Planted Seeds/Trees in current crop row</td>
+                    <td><input class="readonly" id="numPlantedCropRow" type="text" value="0" readonly></td>
+                </tr>
+
+                <tr>
                     <td>Accumulated Distance</td>
                     <td><input class="readonly" id="accDistance" type="text" value="0" readonly></td>
                 </tr>
@@ -202,12 +207,12 @@
 
                 <tr>
                     <td>Distance between plants</td>
-                    <td><input id="deltaPosition" type="number" min="0" max="255" value="10"></td>
+                    <td><input id="deltaPosition" type="number" min="0" max="255" value="2"></td>
                 </tr>
 
                 <tr>
-                    <td>Plant Time (s)</td>
-                    <td><input id="plantTime" type="number" min="0" max="255" value="2"></td>
+                    <td>Plant Time (ms)</td>
+                    <td><input id="plantTime" type="number" min="0" max="4000" value="50"></td>
                 </tr>
 
                 <tr>
@@ -240,8 +245,9 @@
 
         // Example update functions
 
-        function setPlantingsDistanceAndTotal(totalPlantings, accDistance) {
+        function setPlantingsDistanceAndTotal(totalPlantings, accDistance, totalPlantingsCropRow) {
             document.getElementById("numPlanted").value = totalPlantings;
+            document.getElementById("numPlantedCropRow").value = totalPlantingsCropRow;
             document.getElementById("accDistance").value = accDistance;
         }
 
@@ -323,7 +329,7 @@
                 const data = await response.json();
                 setGPS(data.gps_data.lat, data.gps_data.lon, data.gps_data.alt, data.gps_data.hdop, data.gps_data.sat, data.gps_data.rtk_fix);
                 setActive(data.plant_mode_active);
-                setPlantingsDistanceAndTotal(data.totalPlantings, data.acc_distance);
+                setPlantingsDistanceAndTotal(data.totalPlantings, data.acc_distance, data.totalPlantingsCropRow);
 
             } catch (err) {
 

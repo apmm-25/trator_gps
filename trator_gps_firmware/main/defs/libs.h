@@ -22,7 +22,6 @@
 #include "esp_log.h"
 #include "driver/gpio.h"
 #include "sdkconfig.h"
-#include "common.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "freertos/queue.h"

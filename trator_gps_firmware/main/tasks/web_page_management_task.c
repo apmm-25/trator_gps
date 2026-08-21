@@ -8,6 +8,7 @@
 
     24/6/2026 - Initial creation of the file
     05/7/2026 - Added the start webserver call
+    21/8/2026 - Added crop row data to the web page and added the mutexes to protect the data being sent to the web page
     
 */
 
@@ -59,7 +60,7 @@ void webpage_task(void* pvParameters){
             web_data_to_send_snapshot.web_plant_data.current_acc_distance = plant_data.current_acc_distance;
             web_data_to_send_snapshot.web_plant_data.numPlants = plant_data.numPlants;
             web_data_to_send_snapshot.web_plant_data.plant_mode_active = plant_data.plant_mode_active;
-            
+            web_data_to_send_snapshot.web_plant_data.numPlantsCropRow = plant_data.numPlantsCropRow;
             xSemaphoreGive(plant_data_mutex);
         }
 

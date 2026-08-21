@@ -482,6 +482,7 @@ gps_msg_t check_gps_type(char *data_buffer)
     }
 }
 
+// pode nao ser necessario, overkill 
 bool gps_data_validity(GPSData ret_data)
 {
     if (ret_data.HDOP >= HDOP_MAX_LIMIT)

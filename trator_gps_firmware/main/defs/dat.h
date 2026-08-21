@@ -79,6 +79,7 @@ typedef struct {
 
 typedef struct {
     uint64_t numPlants;
+    uint64_t numPlantsCropRow;
     bool plant_mode_active;
     double current_acc_distance;
 } plant_data_t;
@@ -98,6 +99,12 @@ typedef struct
     button_states_t current_state;
     int64_t last_pressed_timestamp;
 } button_t; // Tracks the button and the system state
+
+typedef struct
+{
+    yellow_led_states_t current_state;
+    int64_t last_on_timestamp;
+} yellow_led_t; // Tracks the button and the system state
 
 
 
