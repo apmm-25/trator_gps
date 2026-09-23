@@ -14,17 +14,17 @@ The firmware implements the basic project structure, a task-oriented design, and
 - Application entry and organization: `main/` contains `main.c` and related component directories.
 - Tasks: `main/tasks/` contains task implementations and the state machine task (`state_machine_task.c`).
 - Components: local `components/` and `managed_components/` 
-- Initial Tests were successful in the field with a 50 cm error average.
+- Initial Tests were successful in the field with a 40 cm error average.
 - Prototype validated
 
 ## Things to fix
 
-- Debug and fix error in which the red led normal mode accumulated the distance delta.
-- Add one more entry to the web interface with total session plantings and current file plantings.
-- Reset the current file plantings on mode switching.
+- Debug and fix error in which the red led normal mode accumulated the distance delta. -> Fix complete, Test
+- Add one more entry to the web interface with total session plantings and current file plantings. -> Fix complete, Test
+- Reset the current file plantings on mode switching. -> Fix complete, Test
 
 ## Next Steps
-
+- New test with the new system changes
 - Further test the system in an open field with the RTK Base setup
 - Improve the system to further decrease the localization error
 - Final connection and test with the machine
