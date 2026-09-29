@@ -51,59 +51,63 @@ static esp_err_t get_handler_outputs(httpd_req_t *req)
 
         // ESP_LOGI(TAG, "Test getting mutex on the settings_data");
         xSemaphoreGive(web_data_mutex);
+        
+
+
+        cJSON_AddBoolToObject(root, "plant_mode_active", web_data_to_send_local.web_plant_data.plant_mode_active);
+        cJSON_AddNumberToObject(root, "totalPlantings", web_data_to_send_local.web_plant_data.numPlants);
+        cJSON_AddNumberToObject(root, "totalPlantingsCropRow", web_data_to_send_local.web_plant_data.numPlantsCropRow);
+        cJSON_AddNumberToObject(root, "acc_distance", web_data_to_send_local.web_plant_data.current_acc_distance);
+
+        cJSON *gps_data_json = cJSON_CreateObject();
+        cJSON_AddNumberToObject(gps_data_json, "lat", web_data_to_send_local.web_gps_data.latitude);
+        cJSON_AddNumberToObject(gps_data_json, "lon", web_data_to_send_local.web_gps_data.longitude);
+        cJSON_AddNumberToObject(gps_data_json, "alt", web_data_to_send_local.web_gps_data.altitude);
+        cJSON_AddNumberToObject(gps_data_json, "hdop", web_data_to_send_local.web_gps_data.HDOP);
+        cJSON_AddNumberToObject(gps_data_json, "sat", web_data_to_send_local.web_gps_data.satellite_number);
+        cJSON_AddNumberToObject(gps_data_json, "rtk_fix", web_data_to_send_local.web_gps_data.RTK_fix);
+        cJSON_AddNumberToObject(gps_data_json, "last_rtk_msg_time", time_since_last_rtk_fix());
+        cJSON_AddNumberToObject(gps_data_json, "last_nmea_gga_msg_time", time_since_last_nmea_gga_msg());
+
+        // Attach GPS object to root
+        cJSON_AddItemToObject(root, "gps_data", gps_data_json);
+
+        httpd_resp_set_type(
+            req,
+            "application/json");
+
+        // Transforms the JSON object into a string
+        char *json_response = cJSON_PrintUnformatted(root);
+
+        // SEND IT
+        if (json_response != NULL)
+        {
+            httpd_resp_send(
+                req,
+                json_response,
+                HTTPD_RESP_USE_STRLEN);
+            free(json_response);
+        }
+        else
+        {
+            ESP_LOGE("web_get_handler", "Failed to create JSON response");
+            httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "JSON allocation failed");
+        }
+
+        cJSON_Delete(root);
+
+        return ESP_OK;
     }
     else
     {
         ESP_LOGW("web_get_handler", "Failed to take settings_data_mutex");
+        return ESP_FAIL;
     }
-
-    cJSON_AddBoolToObject(root, "plant_mode_active", web_data_to_send_local.web_plant_data.plant_mode_active);
-    cJSON_AddNumberToObject(root, "totalPlantings", web_data_to_send_local.web_plant_data.numPlants);
-    cJSON_AddNumberToObject(root, "totalPlantingsCropRow", web_data_to_send_local.web_plant_data.numPlantsCropRow);
-    cJSON_AddNumberToObject(root, "acc_distance", web_data_to_send_local.web_plant_data.current_acc_distance);
-
-    cJSON *gps_data_json = cJSON_CreateObject();
-    cJSON_AddNumberToObject(gps_data_json, "lat", web_data_to_send_local.web_gps_data.latitude);
-    cJSON_AddNumberToObject(gps_data_json, "lon", web_data_to_send_local.web_gps_data.longitude);
-    cJSON_AddNumberToObject(gps_data_json, "alt", web_data_to_send_local.web_gps_data.altitude);
-    cJSON_AddNumberToObject(gps_data_json, "hdop", web_data_to_send_local.web_gps_data.HDOP);
-    cJSON_AddNumberToObject(gps_data_json, "sat", web_data_to_send_local.web_gps_data.satellite_number);
-    cJSON_AddNumberToObject(gps_data_json, "rtk_fix", web_data_to_send_local.web_gps_data.RTK_fix);
-
-
-    // Attach GPS object to root
-    cJSON_AddItemToObject(root, "gps_data", gps_data_json);
-
-    httpd_resp_set_type(
-        req,
-        "application/json");
-
-    // Transforms the JSON object into a string
-    char *json_response = cJSON_PrintUnformatted(root);
-
-    // SEND IT
-    if (json_response != NULL)
-    {
-        httpd_resp_send(
-            req,
-            json_response,
-            HTTPD_RESP_USE_STRLEN);
-        free(json_response);
-    }
-    else
-    {
-        ESP_LOGE("web_get_handler", "Failed to create JSON response");
-        httpd_resp_send_err(req, HTTPD_500_INTERNAL_SERVER_ERROR, "JSON allocation failed");
-    }
-
-    cJSON_Delete(root);
-
-    return ESP_OK;
 }
 
 static esp_err_t post_handler_inputs(httpd_req_t *req)
 {
-    
+
     int data_len = req->content_len + 1;
 
     char web_data_buffer[data_len];
@@ -155,7 +159,7 @@ static esp_err_t post_handler_inputs(httpd_req_t *req)
 
         if (cJSON_IsBool(reset_item))
         {
-            ESP_LOGW("web_app_handler", "Here is the value of the reset item: %d",  web_page_received_settings_data_snapshot.reset);
+            ESP_LOGW("web_app_handler", "Here is the value of the reset item: %d", web_page_received_settings_data_snapshot.reset);
             web_page_received_settings_data_snapshot.reset = cJSON_IsTrue(reset_item);
         }
         else

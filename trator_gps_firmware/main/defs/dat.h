@@ -7,8 +7,7 @@
 
     24/6/2026 - Initial creation of the file
     1/7/2026 -  Changed the data types of the latitude, longitude and altitude to double to increase precision
-    
-
+    28/9/2026 - Added the RTK_last_fix_data_t structure to hold the last fix data and timestamps
 
 */
 
@@ -28,6 +27,11 @@ typedef struct {
     rtk_fix_t RTK_fix;
 } GPSData;
 
+typedef struct {
+    int64_t last_rtk_fix_timestamp;
+    int64_t last_nmea_gga_msg_timestamp;
+} GPS_last_message_t;  // Integrar isto, criar um semaforo, quando receber uma mensagem que esta confirmado o RTK fix
+                        // considerar as mensagens fixed, se passado x ms ou segundos perder o fix e nao recuperar passar para false
 
 typedef struct {
    serial_comms_type_t comms_type; 

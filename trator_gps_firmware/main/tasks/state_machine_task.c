@@ -121,15 +121,10 @@ void state_machine_task(void *pvParameters)
         }
         
 
-        // We need to re-do this, the plant and gps_data mutexes need to be utilized after the loop, the red led state needs to reset the accumulated distance
         gps_tracker.current_position = curr_pos_gps_data;
         state_machine_loop(&num_plantings, &num_plantings_crop_row, &curr_state, system_data_snapshot, &gps_tracker);
-
-        // ESP_LOGI(TAG, "Received the settings: delta: %d, plant time %d, allowed error: %.2f", system_data_snapshot.delta_pos, );
-        //ESP_LOGI(TAG, " state machine task side received system_data: \n delta_pos: %d, \n plant_time: %d", system_data_snapshot.delta_pos, system_data_snapshot.plant_time);
         ESP_LOGI(TAG, "STATE MACHINE SIDE ACC DISTANCE: %.4f", gps_tracker.accumulated_distance);
         
-        // ALTEREI ISTO -> falta adicionar a logica para o numPlants ficar geral e o numPlantsCropRow ficar local, resetar o numPlantsCropRow quando entrar no IDLE
         if (xSemaphoreTake(plant_data_mutex, pdMS_TO_TICKS(100)) == pdTRUE)
         {
             plant_data.current_acc_distance = gps_tracker.accumulated_distance;

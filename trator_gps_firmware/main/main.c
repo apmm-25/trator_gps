@@ -27,6 +27,8 @@ sys_data_t system_data;
 SemaphoreHandle_t web_data_mutex;
 plant_data_t plant_data;
 SemaphoreHandle_t plant_data_mutex;
+SemaphoreHandle_t gps_last_message_mutex;
+GPS_last_message_t gps_last_message;
 
 static void wifi_event_handler(void *arg, esp_event_base_t event_base,
                                int32_t event_id, void *event_data)
@@ -152,6 +154,9 @@ void default_system_data_init(void)
     plant_data.numPlants = 0;
     plant_data.plant_mode_active = false;
 
+    gps_last_message.last_nmea_gga_msg_timestamp = 0;
+    gps_last_message.last_rtk_fix_timestamp = 0;
+
     return;
 }
 
@@ -202,6 +207,18 @@ void mutexes_init(void)
     else
     {
         ESP_LOGI(TAG, "plant_data_mutex created");
+    }
+
+    gps_last_message_mutex = xSemaphoreCreateMutex();
+    if (gps_last_message_mutex == NULL)
+    {
+
+        ESP_LOGE(TAG, "Failed to create gps_last_message_mutex");
+        return;
+    }
+    else
+    {
+        ESP_LOGI(TAG, "gps_last_message_mutex created");
     }
 }
 

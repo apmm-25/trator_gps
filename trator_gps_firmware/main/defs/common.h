@@ -56,7 +56,8 @@
 
 #define DEFAULT_DELTA_POS 2 // Default delta position
 #define DEFAULT_PLANT_TIME 50 // Default plant time in miliseconds
-#define DEFAULT_PLANT_ERROR 0.4 // 10 cm 
+#define DEFAULT_PLANT_ERROR 0.4 // 40 cm 
+#define RTK_MODE_PLANT_ERROR 0.05 // 5 cm, theoretical value is 2 cm
 
 #define YELLOW_LED_BLINK_TIME 1000 // 1 second blink time for the yellow led
 
@@ -94,7 +95,8 @@
 #define GPS_DEFAULT_HDOP 0.0
 #define GPS_DEFAULT_SAT 0
 #define HDOP_MAX_LIMIT 3
-
+#define RTK_FIX_TIMEOUT 3000 // 3 seconds timeout for RTK fix in ms, if no fix is received in this time, the system will consider that the RTK fix is lost
+#define SATELLITE_NUMBER_MIN_LIMIT 4 // Minimum number of satellites required for a valid GPS fix
 
 // Extern variables
 extern SemaphoreHandle_t plant_data_mutex;
@@ -109,6 +111,9 @@ extern EventGroupHandle_t system_events;
 extern EventGroupHandle_t wifi_events;
 extern sys_data_t system_data;
 extern button_t button_state;
+extern SemaphoreHandle_t gps_last_message_mutex;
+extern GPS_last_message_t gps_last_message;
+
 
 
 

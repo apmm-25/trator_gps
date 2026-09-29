@@ -26,6 +26,13 @@ zedf9p_incoming_data_t nmea_gps_type_loop(nmea_raw_data_struct *data, gps_msg_t 
 
 bool transform_into_decimal_degrees(zedf9p_incoming_data_t data, GPSData *ret);
 
+void rtk_msg_check(rtk_fix_t rtk_type);
+
+bool rtk_fix_is_recent(void);
+
+double time_since_last_rtk_fix(void);
+double time_since_last_nmea_gga_msg(void);
+
 double calculate_accumulated_distance(GPSData last_pos, GPSData curr_pos, bool first_sample);
 
 #endif /* GPS_H */

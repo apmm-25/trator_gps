@@ -193,8 +193,18 @@
                 </tr>
 
                 <tr>
-                    <td>RTK Fix</td>
+                    <td>RTK Fix Status</td>
                     <td><input class="readonly" id="RTKFix" type="text" value="Undefined" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>Seconds Since Last Valid RTK-Fixed GGA</td>
+                    <td><input class="readonly" id="lastRtkMsgTime" type="text" value="No message yet" readonly></td>
+                </tr>
+
+                <tr>
+                    <td>Seconds Since Last Valid GGA Position</td>
+                    <td><input class="readonly" id="lastNmeaGgaMsgTime" type="text" value="No message yet" readonly></td>
                 </tr>
 
             </table>
@@ -207,12 +217,12 @@
 
                 <tr>
                     <td>Distance between plants</td>
-                    <td><input id="deltaPosition" type="number" min="0" max="255" value="2"></td>
+                    <td><input id="deltaPosition" type="number" min="1" max="255" value="2"></td>
                 </tr>
 
                 <tr>
                     <td>Plant Time (ms)</td>
-                    <td><input id="plantTime" type="number" min="0" max="4000" value="50"></td>
+                    <td><input id="plantTime" type="number" min="1" max="4000" value="50"></td>
                 </tr>
 
                 <tr>
@@ -263,12 +273,14 @@
                 led.classList.add("off");
             }
         }
-        function setGPS(lat, lon, alt, hdop, sats, rtk_fix) {
+        function setGPS(lat, lon, alt, hdop, sats, rtk_fix, last_rtk_msg_time, last_nmea_gga_msg_time) {
             document.getElementById("latitude").value = lat.toFixed(6);
             document.getElementById("longitude").value = lon.toFixed(6);
             document.getElementById("altitude").value = alt.toFixed(2);
             document.getElementById("hdop").value = hdop.toFixed(2);
             document.getElementById("satellites").value = sats;
+            document.getElementById("lastRtkMsgTime").value = last_rtk_msg_time < 0 ? "No message yet" : last_rtk_msg_time.toFixed(1);
+            document.getElementById("lastNmeaGgaMsgTime").value = last_nmea_gga_msg_time < 0 ? "No message yet" : last_nmea_gga_msg_time.toFixed(1);
 
             const fixValue = typeof rtk_fix === "number" ? rtk_fix : -1;
             const rtkField = document.getElementById("RTKFix");
@@ -308,7 +320,9 @@
                     rtkField.value = "Unknown";
                     break;
             }
-        }
+        
+
+        }   
 
         // Read configuration values
         function getConfiguration() {
@@ -327,7 +341,7 @@
                 }
 
                 const data = await response.json();
-                setGPS(data.gps_data.lat, data.gps_data.lon, data.gps_data.alt, data.gps_data.hdop, data.gps_data.sat, data.gps_data.rtk_fix);
+                setGPS(data.gps_data.lat, data.gps_data.lon, data.gps_data.alt, data.gps_data.hdop, data.gps_data.sat, data.gps_data.rtk_fix, data.gps_data.last_rtk_msg_time, data.gps_data.last_nmea_gga_msg_time);
                 setActive(data.plant_mode_active);
                 setPlantingsDistanceAndTotal(data.totalPlantings, data.acc_distance, data.totalPlantingsCropRow);
 
